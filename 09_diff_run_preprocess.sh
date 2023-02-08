@@ -75,11 +75,41 @@ ${FSL_LOCAL}/fslmaths ${DIFF_DATA_DIR}/data_debias_denoise_degibbs.nii.gz \
 # Detrending the tissue heating effect of increased diffusivity
 echo 'Signal Detrending'
 
-python3 ${SCRIPTS}/drift_corr_data.py \
+
+## prep for DRIFT CORR using real timestamp
+ALLMETHODPATH=''
+for t in ${DIFF_SCANS[@]}; do
+  ALLMETHODPATH+=$BRUKER_RAW_DIR$t'/method '
+done
+# echo $ALLMETHODPATH
+
+python3 ${SCRIPTS}/get_timestamp.py $ALLMETHODPATH ${DIFF_DATA_DIR}'/dwi_volume_timestamp.txt'
+
+
+
+# python3 ${SCRIPTS}/drift_corr_data.py \
+#     --in ${DIFF_DATA_DIR}/data_debias_denoise_degibbs.nii.gz \
+#     --mask ${DIFF_DATA_DIR}/mask.nii.gz \
+#     --bval ${DIFF_DATA_DIR}/data.bval \
+#     --out ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr.nii.gz \
+
+
+python3 ${SCRIPTS}/drift_corr_data_timestamp.py \
     --in ${DIFF_DATA_DIR}/data_debias_denoise_degibbs.nii.gz \
     --mask ${DIFF_DATA_DIR}/mask.nii.gz \
     --bval ${DIFF_DATA_DIR}/data.bval \
+    --time ${DIFF_DATA_DIR}'/dwi_volume_timestamp.txt'\
     --out ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr.nii.gz \
+
+
+
+
+
+
+
+
+
+
 
 
 if [[ ${HEAT_CORRECTION} == "YES" ]]
