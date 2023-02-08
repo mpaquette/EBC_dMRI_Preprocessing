@@ -42,7 +42,7 @@ def main():
 
     # Load input file and sigma
     print('Loading Input Data {}'.format(PATH_IN))
-    data = nib.load(PATH_IN).get_fdata().astype(np.float)
+    data = nib.load(PATH_IN).get_fdata().astype(np.float32)
     aff = nib.load(PATH_IN).affine
     dims = data.shape
 

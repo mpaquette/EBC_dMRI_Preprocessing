@@ -60,7 +60,7 @@ def main():
     sigmas = nib.load(PATH_SIGMA).get_fdata()
     Ns = nib.load(PATH_N).get_fdata()
 
-    mask = nib.load(PATH_MASK).get_fdata().astype(np.bool)
+    mask = nib.load(PATH_MASK).get_fdata().astype(bool)
 
     bvals = np.genfromtxt(PATH_BVAL)
     bvecs = np.genfromtxt(PATH_BVEC)
@@ -90,7 +90,7 @@ def main():
         # Normalize Data
         data_norm = np.clip(mask[..., None] * (data[..., diff_mask] / data_b0_mean[..., None]), 0, 1)
         # Concatenate mask as fake normalized b0
-        data_norm = np.concatenate((mask.astype(np.float)[...,None], data_norm), axis=3)
+        data_norm = np.concatenate((mask.astype(np.float32)[...,None], data_norm), axis=3)
 
 
         # Clean Data from unwanted values

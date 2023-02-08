@@ -24,7 +24,7 @@ def main(dwipath, bvalpath, bvecpath, maskpath, outputpath, NCORE=1, tau=1e-5, l
 
 	# load bvals and bvecs
 	print('Load bvec/bvec')
-	bvals, bvecs = read_bvals_bvecs(bvalpath,bvecpath)
+	bvals, bvecs = read_bvals_bvecs(bvalpath, bvecpath)
 	# fix flips
 	print('bvec: Flip X')
 	bvecs[:, 0] *= -1
@@ -59,7 +59,7 @@ def main(dwipath, bvalpath, bvecpath, maskpath, outputpath, NCORE=1, tau=1e-5, l
 	# print('This script assumes the first volume is a brain mask')
 	# mask = data[..., 0].astype(np.bool)
 
-	mask = nib.load(maskpath).get_fdata().astype(np.bool)
+	mask = nib.load(maskpath).get_fdata().astype(bool)
 
 
 	# CSA model

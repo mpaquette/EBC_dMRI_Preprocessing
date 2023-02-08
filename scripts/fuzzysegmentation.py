@@ -120,7 +120,7 @@ def main(maskpath, fapath, mdpath, b0path, flash1path, flash2path, flash3path, f
 
 
     for j in range(ncenters):
-        tmp = np.zeros(mask.shape[:3], dtype=np.float)
+        tmp = np.zeros(mask.shape[:3], dtype=np.float32)
         tmp[(tuple(data_vector[:, 0].astype(np.int)), tuple(data_vector[:, 1].astype(np.int)), tuple(data_vector[:, 2].astype(np.int)))] = u[j]
         nib.Nifti1Image(tmp, affine).to_filename(clusterbase + 'fuzzy_label_{}class_idx_{}.nii.gz'.format(ncenters, j))
 

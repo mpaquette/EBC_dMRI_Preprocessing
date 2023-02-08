@@ -41,9 +41,9 @@ def main():
         return 0
 
     if args.mask is None:
-        mask = np.ones(data.shape[:3]).astype(np.bool)
+        mask = np.ones(data.shape[:3]).astype(bool)
     else:
-        mask = nib.load(args.mask).get_fdata().astype(np.bool)
+        mask = nib.load(args.mask).get_fdata().astype(bool)
 
     bvals = np.genfromtxt(args.bvals)
     b0s = bvals<100 # b0 mask
@@ -51,7 +51,7 @@ def main():
     outpath = args.out
 
     # Casting data as float
-    data = data.astype(np.float)
+    data = data.astype(np.float32)
     print('Data shape is {}'.format(data.shape))
     print('Mask shape is {}'.format(mask.shape))
 
@@ -64,7 +64,7 @@ def main():
     data_mean /= data_mean[b0s].mean() # normalize with mean b0 intensity
 
     n_vols = data.shape[3]
-    vols = np.linspace(0, n_vols-1, n_vols, dtype = np.int)
+    vols = np.linspace(0, n_vols-1, n_vols, dtype=int)
 
     vols_nob0 = vols[np.logical_not(b0s)]
 

@@ -46,7 +46,7 @@ def main():
 
     # Load input file and sigma
     print('Loading Input Data {}'.format(PATH_IN))
-    data = nib.load(PATH_IN).get_fdata().astype(np.float)
+    data = nib.load(PATH_IN).get_fdata()
     aff = nib.load(PATH_IN).affine
     dims = data.shape
 
@@ -54,11 +54,11 @@ def main():
     
     
     print('Loading Sigma {}'.format(PATH_SIG))
-    sigma = nib.load(PATH_SIG).get_fdata().astype(np.float)
+    sigma = nib.load(PATH_SIG).get_fdata()
     print('Sigma Dimensions {}'.format(sigma.shape))
 
     print('Loading N {}'.format(PATH_N))
-    N = nib.load(PATH_N).get_fdata().astype(np.float)
+    N = nib.load(PATH_N).get_fdata()
     print('N Dimensions {}'.format(N.shape))
 
 

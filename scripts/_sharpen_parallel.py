@@ -77,7 +77,7 @@ def odf_sh_to_sharp_parallel(odfs_sh, sphere, mask=None, basis=None, ratio=3 / 1
     nprocess = min(maxprocess, cpu_count())
 
     if mask is None:
-        mask = np.ones(odfs_sh.shape[:3], dtype=np.bool)
+        mask = np.ones(odfs_sh.shape[:3], dtype=bool)
 
     r, theta, phi = cart2sphere(sphere.x, sphere.y, sphere.z)
     real_sym_sh = sph_harm_lookup[basis]

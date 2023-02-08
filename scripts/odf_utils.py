@@ -16,11 +16,11 @@ import numbers
 def peak_directions_vol(odfs, sphere, relative_peak_threshold=0.25, min_separation_angle=15, mask=None):
 	vol_shape = odfs.shape[:-1]
 	if mask is None:
-		mask = np.ones(vol_shape, dtype=np.bool)
+		mask = np.ones(vol_shape, dtype=bool)
 
-	peak_dir = np.zeros(vol_shape + (10,3), dtype=np.float)
-	peak_val = np.zeros(vol_shape + (10,), dtype=np.float)
-	peak_ind = np.zeros(vol_shape + (10,), dtype=np.int)
+	peak_dir = np.zeros(vol_shape + (10,3), dtype=np.float32)
+	peak_val = np.zeros(vol_shape + (10,), dtype=np.float32)
+	peak_ind = np.zeros(vol_shape + (10,), dtype=int)
 
 	for idx in np.ndindex(vol_shape):
 		if mask[idx]:
@@ -38,11 +38,11 @@ def peak_directions_vol(odfs, sphere, relative_peak_threshold=0.25, min_separati
 def peak_directions_sh_vol(odfs_sh, mat, sphere, relative_peak_threshold=0.25, min_separation_angle=15, Npeaks=10, mask=None):
 	vol_shape = odfs_sh.shape[:-1]
 	if mask is None:
-		mask = np.ones(vol_shape, dtype=np.bool)
+		mask = np.ones(vol_shape, dtype=bool)
 
-	peak_dir = np.zeros(vol_shape + (Npeaks,3), dtype=np.float)
-	peak_val = np.zeros(vol_shape + (Npeaks,), dtype=np.float)
-	peak_ind = np.zeros(vol_shape + (Npeaks,), dtype=np.int)
+	peak_dir = np.zeros(vol_shape + (Npeaks,3), dtype=np.float32)
+	peak_val = np.zeros(vol_shape + (Npeaks,), dtype=np.float32)
+	peak_ind = np.zeros(vol_shape + (Npeaks,), dtype=int)
 
 	for idx in np.ndindex(vol_shape):
 		if mask[idx]:

@@ -187,7 +187,7 @@ def main():
     print('Elapsed time  = {:.2f} s'.format(end_time - start_time))
 
     # save AIC values
-    nib.Nifti1Image(aic_value.astype(np.float), affine).to_filename(args.oaic)
+    nib.Nifti1Image(aic_value.astype(np.float32), affine).to_filename(args.oaic)
 
 
 if __name__ == "__main__":

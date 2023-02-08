@@ -73,9 +73,9 @@ def main():
         return None 
 
     if args.mask is None:
-        mask = np.ones(data.shape[:3], dtype=np.bool)
+        mask = np.ones(data.shape[:3], dtype=bool)
     else:
-        mask = nib.load(args.mask).get_fdata().astype(np.bool)
+        mask = nib.load(args.mask).get_fdata().astype(bool)
 
     totalVoxel = np.prod(mask.shape)
     voxelInMask = mask.sum()

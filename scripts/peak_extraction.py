@@ -76,9 +76,9 @@ def main():
     affine = odf_img.affine
 
     if args.mask is None:
-        mask = np.ones(odf_sh.shape[:3]).astype(np.bool)
+        mask = np.ones(odf_sh.shape[:3]).astype(bool)
     else:
-        mask = nib.load(args.mask).get_fdata().astype(np.bool)
+        mask = nib.load(args.mask).get_fdata().astype(bool)
 
 
 

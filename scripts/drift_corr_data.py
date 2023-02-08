@@ -45,7 +45,7 @@ def main():
     aff = nib.load(PATH_IN).affine
     dims = data.shape
 
-    mask = nib.load(PATH_MASK).get_fdata().astype(np.bool)
+    mask = nib.load(PATH_MASK).get_fdata().astype(bool)
 
     bvals = np.round(np.genfromtxt(PATH_BVAL), -3).squeeze()
 

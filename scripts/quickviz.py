@@ -93,13 +93,13 @@ def main():
 
     X,Y,Z = data.shape
     # Casting data as float
-    data = data.astype(np.float)
+    data = data.astype(np.float32)
     print('Data shape is {}'.format(data.shape))
 
     if args.mask is None:
-        mask = np.ones_like(data).astype(np.bool)
+        mask = np.ones_like(data).astype(bool)
     else:
-        mask = nib.load(args.mask).get_fdata().astype(np.bool)
+        mask = nib.load(args.mask).get_fdata().astype(bool)
 
     # masking data
     data = data*mask

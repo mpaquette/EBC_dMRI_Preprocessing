@@ -65,13 +65,13 @@ def main():
 
     if len(args.mask) > 0:
         PATH_MASK = os.path.realpath(args.mask)
-        mask = nib.load(PATH_MASK).get_fdata().astype(np.bool)
+        mask = nib.load(PATH_MASK).get_fdata().astype(bool)
     else:
-        mask = np.ones(data.shape[:3], dtype=np.bool)
+        mask = np.ones(data.shape[:3], dtype=bool)
 
     bvals = np.genfromtxt(PATH_BVAL)
 
-    timestamps = np.genfromtxt(PATH_TIME, dtype=np.int)
+    timestamps = np.genfromtxt(PATH_TIME, dtype=int)
 
 
     print('Running Drift Correction')

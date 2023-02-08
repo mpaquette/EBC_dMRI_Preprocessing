@@ -47,8 +47,8 @@ def main():
     for i_scan,scan in enumerate(content):
         scan_numbers.append(func(scan))
 
-    content_array = np.array(content, dtype=np.object)
-    content_array_sort = np.array(list(filter(None, content_array[np.argsort(scan_numbers)])), dtype=np.object)
+    content_array = np.array(content, dtype=object)
+    content_array_sort = np.array(list(filter(None, content_array[np.argsort(scan_numbers)])), dtype=object)
     
     np.savetxt(PATH_OUT, content_array_sort, fmt="%s")
 

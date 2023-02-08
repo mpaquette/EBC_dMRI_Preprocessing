@@ -81,8 +81,8 @@ def main():
 
     # load and multiply all the mask
     print('Loading Mask')
-    mask = np.ones(data.shape[:3], dtype=np.bool)
-    mask_data = [nib.load(fname).get_fdata().astype(np.bool) for fname in args.mask]
+    mask = np.ones(data.shape[:3], dtype=bool)
+    mask_data = [nib.load(fname).get_fdata().astype(bool) for fname in args.mask]
     for tmp in mask_data:
         mask = np.logical_and(mask, tmp)
     print('Final mask has {:} voxels ({:.1f} % of total)'.format(mask.sum(), 100*mask.sum()/np.prod(data.shape[:3])))
@@ -121,7 +121,7 @@ def main():
 
 
     for j in range(ncenters):
-        tmp = np.zeros(mask.shape[:3], dtype=np.float)
+        tmp = np.zeros(mask.shape[:3], dtype=np.float32)
         tmp[(tuple(linear_coords[:,0]), tuple(linear_coords[:,1]), tuple(linear_coords[:,2]))] = u[j]
         nib.Nifti1Image(tmp, affine).to_filename(args.out + 'fuzzy_label_{}class_idx_{}.nii.gz'.format(ncenters, j))
 

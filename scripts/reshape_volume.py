@@ -56,7 +56,7 @@ def main():
     
     # Read Data
     print('Loading Input Data {}'.format(DATA_IN))
-    data = nib.load(DATA_IN).get_fdata().astype(np.float)
+    data = nib.load(DATA_IN).get_fdata().astype(np.float32)
     aff = nib.load(DATA_IN).affine
     print('Original Data Shape {} \n'.format(data.shape))
     
