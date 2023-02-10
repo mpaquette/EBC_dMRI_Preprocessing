@@ -184,8 +184,10 @@ def main():
         else:
             hist_max = args.hist_max
 
-        data_hist = data_hist[data_hist >= hist_min]
-        data_hist = data_hist[data_hist <= hist_max]
+        # data_hist = data_hist[data_hist >= hist_min]
+        # data_hist = data_hist[data_hist <= hist_max]
+
+        data_hist = data_hist[np.logical_and(data_hist >= hist_min, data_hist <= hist_max)]
 
         print('Histogram of masked volume with {} bins from {:.2e} to {:.2e}'.format(nbins, hist_min, hist_max))
         print('mean = {:.3e}   std = {:.3e}'.format(data_hist.mean(), data_hist.std()))
