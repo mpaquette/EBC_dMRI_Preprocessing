@@ -2,7 +2,7 @@
 
 # Load Local Variables
 source ./SET_VARIABLES.sh
-source ${FSL_LOCAL}/etc/fslconf/fsl.sh
+source ${FSL_LOCAL}/../etc/fslconf/fsl.sh
 
 
 
