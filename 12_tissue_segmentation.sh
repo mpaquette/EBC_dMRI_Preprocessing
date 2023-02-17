@@ -77,35 +77,30 @@ do
         echo 'N4 FLASH Contrast 1: Run '${i}
         N4BiasFieldCorrection -d 3 \
                 -i $previous_iter_flash_1 \
-                # -x ${TISSUE_SEGMENTATION_DIR}/mask.nii.gz \
                 -x ${FLASH_DIR_WARP}/mask_flash.nii.gz \
                 -o $current_iter_flash_1
         
         echo 'N4 FLASH Contrast 2: Run '${i}
         N4BiasFieldCorrection -d 3 \
                 -i $previous_iter_flash_2 \
-                # -x ${TISSUE_SEGMENTATION_DIR}/mask.nii.gz \
                 -x ${FLASH_DIR_WARP}/mask_flash.nii.gz \
                 -o $current_iter_flash_2
         
         echo 'N4 FLASH Contrast 3: Run '${i}
         N4BiasFieldCorrection -d 3 \
                 -i $previous_iter_flash_3 \
-                # -x ${TISSUE_SEGMENTATION_DIR}/mask.nii.gz \
                 -x ${FLASH_DIR_WARP}/mask_flash.nii.gz \
                 -o $current_iter_flash_3
         
         echo 'N4 FLASH Contrast 4: Run '${i}
         N4BiasFieldCorrection -d 3 \
                 -i $previous_iter_flash_4 \
-                # -x ${TISSUE_SEGMENTATION_DIR}/mask.nii.gz \
                 -x ${FLASH_DIR_WARP}/mask_flash.nii.gz \
                 -o $current_iter_flash_4
         
         echo 'N4 FLASH Contrast 5: Run '${i}
         N4BiasFieldCorrection -d 3 \
                 -i $previous_iter_flash_5 \
-                # -x ${TISSUE_SEGMENTATION_DIR}/mask.nii.gz \
                 -x ${FLASH_DIR_WARP}/mask_flash.nii.gz \
                 -o $current_iter_flash_5
 
