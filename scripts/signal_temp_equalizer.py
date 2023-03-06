@@ -8,6 +8,10 @@ import dipy.reconst.dti as dti
 import nibabel as nib
 import numpy as np
 import pylab as pl
+
+import warnings
+warnings.simplefilter("ignore", RuntimeWarning)
+
 # from scilpy.utils.bvec_bval_tools import (normalize_bvecs, is_normalized_bvecs)
 
 
