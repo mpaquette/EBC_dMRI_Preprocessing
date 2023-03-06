@@ -10,7 +10,7 @@ LSD_DIR=${DIFF_DIR}'/lsd_reprocess/'
 mkdir ${LSD_DIR}
 
 # obviously this need a compact version liviing in scripts
-python /data/pt_02101_dMRI/data/001_C_W_EMMA/preprocessed/20210127_151556_001_C_W_EMMA_TAI_E_1_1_rr/scripts/round_bvals.py --in ${DIFF_DATA_RELEASE_DIR}'/data.bval' --out ${LSD_DIR}'/rounded.bval'
+python3 ${SCRIPTS}/round_bvals.py --in ${DIFF_DATA_RELEASE_DIR}'/data.bval' --out ${LSD_DIR}'/rounded.bval'
 python /data/hu_paquette/tools/scilpy/scripts/scil_flip_gradients.py ${DIFF_DATA_RELEASE_DIR}'/data.bvec' ${LSD_DIR}'/flipX.bvec' x --fsl
 
 
