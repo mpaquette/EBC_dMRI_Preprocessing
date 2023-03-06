@@ -15,6 +15,70 @@ mrview ${TISSUE_SEGMENTATION_DIR}/*fuzzy*.nii.gz
 # ${TISSUE_SEGMENTATION_DIR}/'fuzzy_label_4class_idx_1.nii.gz '\
 # ${TISSUE_SEGMENTATION_DIR}/'fuzzy_label_3class_idx_2.nii.gz '\
 
+
+
+## Notes
+
+# fuzzy_label_2class_idx_0.nii.gz
+# 
+# fuzzy_label_2class_idx_1.nii.gz
+# 
+
+# fuzzy_label_3class_idx_0.nii.gz
+# 
+# fuzzy_label_3class_idx_1.nii.gz
+# 
+# fuzzy_label_3class_idx_2.nii.gz
+# 
+
+# fuzzy_label_4class_idx_0.nii.gz
+# 
+# fuzzy_label_4class_idx_1.nii.gz
+# 
+# fuzzy_label_4class_idx_2.nii.gz
+# 
+# fuzzy_label_4class_idx_3.nii.gz
+# 
+
+
+# noFA_fuzzy_label_2class_idx_0.nii.gz
+# 
+# noFA_fuzzy_label_2class_idx_1.nii.gz
+# 
+
+# noFA_fuzzy_label_3class_idx_0.nii.gz
+# 
+# noFA_fuzzy_label_3class_idx_1.nii.gz
+# 
+# noFA_fuzzy_label_3class_idx_2.nii.gz
+# 
+
+# noFA_fuzzy_label_4class_idx_0.nii.gz
+# 
+# noFA_fuzzy_label_4class_idx_1.nii.gz
+# 
+# noFA_fuzzy_label_4class_idx_2.nii.gz
+# 
+# noFA_fuzzy_label_4class_idx_3.nii.gz"
+# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 INPUT_CLASSES_WM_MASK=''
 
 mrview $INPUT_CLASSES_WM_MASK
