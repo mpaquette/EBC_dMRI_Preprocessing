@@ -120,7 +120,7 @@ FSL_LOCAL=${SOFTWARE}/fsl6/bin/
 MRDEGIBBS3D=${SOFTWARE}/mrtrix3/mrdegibbs3D/bin/deGibbs3D
 
 CONFIG_DIR=${LOCAL_DIR}/config/
-EDDY_PATH=/data/pt_02101_dMRI/software/eddy/eddy_cuda8.0
+EDDY_PATH=/data/pt_02101_dMRI/software/fsl6/eddy_cuda10.2
 ########################
 # Load Local CONDA Environment
 eval "$(/data/pt_02101_dMRI/software/anaconda3/bin/conda shell.bash hook)"

@@ -33,7 +33,8 @@ echo 'MP PCA Denoising'
 dwidenoise -f ${DIFF_DATA_DIR}/data_debias.nii.gz \
     ${DIFF_DATA_DIR}/data_debias_denoise.nii.gz \
     -mask ${DIFF_DATA_DIR}/mask.nii.gz \
-    -noise ${DIFF_DATA_DIR}/data_noise.nii.gz
+    -noise ${DIFF_DATA_DIR}/data_noise.nii.gz \
+    -nthreads ${N_CORES}
 
 ${FSL_LOCAL}/fslmaths ${DIFF_DATA_DIR}/data_debias.nii.gz \
     -sub ${DIFF_DATA_DIR}/data_debias_denoise.nii.gz \
@@ -63,7 +64,8 @@ echo 'Gibbs Ringing Correction'
 
 ${MRDEGIBBS3D} -force \
     ${DIFF_DATA_DIR}/data_debias_denoise.nii.gz \
-    ${DIFF_DATA_DIR}/data_debias_denoise_degibbs.nii.gz 
+    ${DIFF_DATA_DIR}/data_debias_denoise_degibbs.nii.gz \
+    -nthreads ${N_CORES}
 
 ${FSL_LOCAL}/fslmaths ${DIFF_DATA_DIR}/data_debias_denoise_degibbs.nii.gz \
     -sub ${DIFF_DATA_DIR}/data_debias_denoise.nii.gz \
