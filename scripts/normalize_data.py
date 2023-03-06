@@ -6,6 +6,9 @@ import nibabel as nib
 import numpy as np
 import os
 
+import warnings
+warnings.simplefilter("ignore", RuntimeWarning)
+
 
 DESCRIPTION =   'DMRI Data Normalization with B0 image and calculation of Spherical Mean Image. Cornelius Eichner 2020'
 FSL_LOCAL = '/data/pt_02101_dMRI/software/fsl6/bin/'
