@@ -230,6 +230,12 @@ done
 rm -f ${DIFF_DATA_DIR}/mask.nii.gz ${DIFF_DATA_DIR}/mask_fit_connect.nii.gz 
 mv -f ${DIFF_DATA_DIR}/mask_fit_connect_dil.nii.gz ${DIFF_DATA_DIR}/mask.nii.gz
 
+
+# mv -f ${DIFF_DATA_DIR}/mask.nii.gz ${DIFF_DATA_DIR}/mask_auto.nii.gz
+# mrcalc ${DIFF_DATA_DIR}/mask_auto.nii.gz ${DIFF_DATA_DIR}/mask_manual_addition.nii.gz -max ${DIFF_DATA_DIR}/mask.nii.gz
+
+
+
 #
 ##################
 
