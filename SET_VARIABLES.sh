@@ -124,4 +124,5 @@ EDDY_PATH=/data/pt_02101_dMRI/software/eddy/eddy_cuda8.0
 ########################
 # Load Local CONDA Environment
 eval "$(/data/pt_02101_dMRI/software/anaconda3/bin/conda shell.bash hook)"
-
+# Multithreading for ANTs
+ITK_GET_GLOBAL_DEFAULT_NUMBER_OF_THREADS=${N_CORES}
