@@ -21,7 +21,7 @@ cp ${EDDY_DIR}/*bvecs                                                           
 echo "Run Bedpost"
 
 # bedpostx_gpu ${DIFF_DATA_BEDPOSTX_DIR}
-$SOFTWARE/fsl6/xfibres_gpu/bedpostx_gpu
+$SOFTWARE/fsl6/xfibres_gpu/bedpostx_gpu ${DIFF_DATA_BEDPOSTX_DIR}
 
 ###############
 
