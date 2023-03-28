@@ -113,6 +113,9 @@ FLASH_DIR_HIGHRES="${FLASH_DIR}/HIGHRES/"
 FLASH_DIR_ULTRA_HIGHRES="${FLASH_DIR}/ULTRA_HIGHRES/"
 FLASH_DIR_WARP="${FLASH_DIR}/Reg_to_EPI/"
 
+JUNA_T1_TEMPLATE=/data/pt_02101_dMRI/external_data/Juna_Template/Juna.Chimp_05mm/Juna_Chimp_T1_05mm_skull_stripped.nii.gz
+JUNA_TMP_TEMPLATE=/data/pt_02101_dMRI/external_data/Juna_Template/Juna.Chimp_05mm/Juna_Chimp_TPM_05mm.nii.gz
+
 ########################
 # Set Scripts and Software Folders
 SCRIPTS=${LOCAL_DIR}/scripts/
