@@ -100,6 +100,7 @@ SPLIT_WARPED_DIR=${DIFF_DATA_DIR}/split_warped/
 TOPUP_DIR="${DIFF_DIR}/topup/"
 TISSUE_SEGMENTATION_DIR="${DIFF_DIR}/segmentation/"
 ODF_DIR="${DIFF_DIR}/odf/"
+JUNA_DIR="${DIFF_DIR}/juna_registration/"
 
 # FLASH Data Folder Variables
 FLASH_DIR="${LOCAL_DIR}/flash/"

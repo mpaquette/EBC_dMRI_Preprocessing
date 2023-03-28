@@ -23,7 +23,8 @@ mkdir -p \
     ${SPLIT_WARPED_DIR} \
     ${TOPUP_DIR} \
     ${TISSUE_SEGMENTATION_DIR} \
-    ${ODF_DIR}
+    ${ODF_DIR} \
+    ${JUNA_DIR}
 
 
 # Generate FLASH FOLDERS
