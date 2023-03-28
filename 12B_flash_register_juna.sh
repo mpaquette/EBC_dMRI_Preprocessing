@@ -5,6 +5,11 @@ source ./SET_VARIABLES.sh
 
 
 
+# PARAM for flash mask closure
+CLOSE_SPHERE_RADIUS=10
+DILATATION_RADIUS=2
+
+
 # Prepare Juna template by padding
 mrgrid ${JUNA_T1_TEMPLATE} pad -uniform ${JUNA_PAD} ${JUNA_DIR}'/juna_template_pad.nii.gz'
 
@@ -16,7 +21,7 @@ mrgrid ${TISSUE_SEGMENTATION_DIR}'/flash_contr4_degibbs_N4_5x.nii.gz' pad -unifo
 mrgrid ${TISSUE_SEGMENTATION_DIR}'/flash_contr5_degibbs_N4_5x.nii.gz' pad -uniform ${JUNA_PAD} ${JUNA_DIR}'/flash5_degibbs_N4_5x_pad.nii.gz'
 
 # Prepare mask by filling holes, dilating and paddind
-${SCRIPTS}'/closure_mask.py' ${FLASH_DIR_WARP}'/mask_flash.nii.gz' ${JUNA_DIR}'/mask_flash_closed.nii.gz' 10 2
+${SCRIPTS}'/closure_mask.py' ${FLASH_DIR_WARP}'/mask_flash.nii.gz' ${JUNA_DIR}'/mask_flash_closed.nii.gz' $CLOSE_SPHERE_RADIUS $DILATATION_RADIUS
 mrgrid ${JUNA_DIR}'/mask_flash_closed.nii.gz' pad -uniform ${JUNA_PAD} ${JUNA_DIR}'/mask_flash_pad.nii.gz'
 
 
@@ -112,4 +117,12 @@ antsApplyTransforms \
     --transform $PREFIX'1InverseWarp.nii.gz' \
     --output ${JUNA_DIR}'/flash5_degibbs_N4_5x_Juna_space.nii.gz'
 
+
+antsApplyTransforms \
+    --dimensionality 3 \
+    --input $FIXEDMASK \
+    --reference-image $MOVING \
+    --transform [$PREFIX'0GenericAffine.mat', 1] \
+    --transform $PREFIX'1InverseWarp.nii.gz' \
+    --output ${JUNA_DIR}'/mask_flash_juna_space.nii.gz'
 
