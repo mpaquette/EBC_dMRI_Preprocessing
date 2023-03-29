@@ -21,7 +21,7 @@ mrgrid ${TISSUE_SEGMENTATION_DIR}'/flash_contr4_degibbs_N4_5x.nii.gz' pad -unifo
 mrgrid ${TISSUE_SEGMENTATION_DIR}'/flash_contr5_degibbs_N4_5x.nii.gz' pad -uniform ${JUNA_PAD} ${JUNA_DIR}'/flash5_degibbs_N4_5x_pad.nii.gz'
 
 # Prepare mask by filling holes, dilating and paddind
-${SCRIPTS}'/closure_mask.py' ${FLASH_DIR_WARP}'/mask_flash.nii.gz' ${JUNA_DIR}'/mask_flash_closed.nii.gz' $CLOSE_SPHERE_RADIUS $DILATATION_RADIUS
+python3 ${SCRIPTS}'/closure_mask.py' ${FLASH_DIR_WARP}'/mask_flash.nii.gz' ${JUNA_DIR}'/mask_flash_closed.nii.gz' $CLOSE_SPHERE_RADIUS $DILATATION_RADIUS
 mrgrid ${JUNA_DIR}'/mask_flash_closed.nii.gz' pad -uniform ${JUNA_PAD} ${JUNA_DIR}'/mask_flash_pad.nii.gz'
 
 

@@ -18,6 +18,15 @@ FLASH_TO_EPI_AFF=${FLASH_DIR_WARP}'/flash_to_epi_0GenericAffine.mat'
 EPI_TO_FLASH_WARP=${FLASH_DIR_WARP}'/flash_to_epi_1InverseWarp.nii.gz'
 
 
+# Flash contrasts
+CONTRAST_FLASH1=${JUNA_DIR}'/flash1_degibbs_N4_5x_pad.nii.gz'
+CONTRAST_FLASH2=${JUNA_DIR}'/flash2_degibbs_N4_5x_pad.nii.gz'
+CONTRAST_FLASH3=${JUNA_DIR}'/flash3_degibbs_N4_5x_pad.nii.gz'
+CONTRAST_FLASH4=${JUNA_DIR}'/flash4_degibbs_N4_5x_pad.nii.gz'
+CONTRAST_FLASH5=${JUNA_DIR}'/flash5_degibbs_N4_5x_pad.nii.gz'
+FLASHMASK=${JUNA_DIR}'/mask_flash_pad.nii.gz'
+
+
 
 # Diffusion contrasts
 # CLipping negatives
@@ -32,32 +41,28 @@ mrgrid ${JUNA_DIR}'/SM_dwi_space.nii.gz' pad -uniform ${JUNA_PAD} ${JUNA_DIR}'/S
 antsApplyTransforms \
     --dimensionality 3 \
     --input ${JUNA_DIR}'/B0_N4_5x_dwi_space_pad.nii.gz' \
-    --reference-image $FLASH3 \
+    --reference-image $CONTRAST_FLASH3 \
     --interpolation BSpline \
     --transform [$FLASH_TO_EPI_AFF, 1] \
     --transform $EPI_TO_FLASH_WARP \
-    --output ${JUNA_DIR}'/B0_N4_5x_flash_space_pad.nii.gz'
+    --output ${JUNA_DIR}'/B0_N4_5x_flash_space_pad_raw.nii.gz'
 
 antsApplyTransforms \
     --dimensionality 3 \
     --input ${JUNA_DIR}'/SM_dwi_space_pad.nii.gz' \
-    --reference-image $FLASH3 \
+    --reference-image $CONTRAST_FLASH3 \
     --interpolation BSpline \
     --transform [$FLASH_TO_EPI_AFF, 1] \
     --transform $EPI_TO_FLASH_WARP \
-    --output ${JUNA_DIR}'/SM_flash_space_pad.nii.gz'
+    --output ${JUNA_DIR}'/SM_flash_space_pad_raw.nii.gz'
 
 
 CONTRAST_B0=${JUNA_DIR}'/B0_N4_5x_flash_space_pad.nii.gz'
 CONTRAST_SM=${JUNA_DIR}'/SM_flash_space_pad.nii.gz'
 
-# Flash contrasts
-CONTRAST_FLASH1=${JUNA_DIR}'/flash1_degibbs_N4_5x_pad.nii.gz'
-CONTRAST_FLASH2=${JUNA_DIR}'/flash2_degibbs_N4_5x_pad.nii.gz'
-CONTRAST_FLASH3=${JUNA_DIR}'/flash3_degibbs_N4_5x_pad.nii.gz'
-CONTRAST_FLASH4=${JUNA_DIR}'/flash4_degibbs_N4_5x_pad.nii.gz'
-CONTRAST_FLASH5=${JUNA_DIR}'/flash5_degibbs_N4_5x_pad.nii.gz'
-FLASHMASK=${JUNA_DIR}'/mask_flash_pad.nii.gz'
+mrcalc ${JUNA_DIR}'/B0_N4_5x_flash_space_pad_raw.nii.gz' 0 -max $CONTRAST_B0
+mrcalc ${JUNA_DIR}'/SM_flash_space_pad_raw.nii.gz' 0 -max $CONTRAST_SM
+
 
 
 
@@ -77,7 +82,7 @@ mrgrid ${JUNA_DIR}'/Juna_CSF.nii.gz' pad -uniform ${JUNA_PAD} ${JUNA_DIR}'/Juna_
 antsApplyTransforms \
     --dimensionality 3 \
     --input ${JUNA_DIR}'/Juna_GM_pad.nii.gz' \
-    --reference-image $FLASH3 \
+    --reference-image $CONTRAST_FLASH3 \
     --interpolation BSpline \
     --transform $JUNA_TO_FLASH_WARP \
     --transform $JUNA_TO_FLASH_AFF \
@@ -87,7 +92,7 @@ PRIOR_GM_FLASHSPACE=${JUNA_DIR}'/Juna_GM_pad_flash_space.nii.gz'
 antsApplyTransforms \
     --dimensionality 3 \
     --input ${JUNA_DIR}'/Juna_WM_pad.nii.gz' \
-    --reference-image $FLASH3 \
+    --reference-image $CONTRAST_FLASH3 \
     --interpolation BSpline \
     --transform $JUNA_TO_FLASH_WARP \
     --transform $JUNA_TO_FLASH_AFF \
@@ -97,7 +102,7 @@ PRIOR_WM_FLASHSPACE=${JUNA_DIR}'/Juna_WM_pad_flash_space.nii.gz'
 antsApplyTransforms \
     --dimensionality 3 \
     --input ${JUNA_DIR}'/Juna_CSF_pad.nii.gz' \
-    --reference-image $FLASH3 \
+    --reference-image $CONTRAST_FLASH3 \
     --interpolation BSpline \
     --transform $JUNA_TO_FLASH_WARP \
     --transform $JUNA_TO_FLASH_AFF \
