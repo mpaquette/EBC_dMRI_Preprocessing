@@ -137,9 +137,9 @@ then
         ${DIFF_DATA_DIR}/computed_ks_vol1.nii.gz \
         -uthr 0.8 \
         -bin \
-        -kernel 3d -fillh26 \
-        -kernel 3d -fillh26 \
-        -kernel 3d -eroF \
+        -kernel 3D -fillh26 \
+        -kernel 3D -fillh26 \
+        -kernel 3D -eroF \
         -mas ${DIFF_DATA_DIR}/mask.nii.gz \
         ${DIFF_DATA_DIR}/wm_mask.nii.gz
 

@@ -110,7 +110,7 @@ ${FSL_LOCAL}/mcflirt \
 ${FSL_LOCAL}/fslmaths \
     ${DIFF_DATA_DIR}/data_b0s_mc.nii.gz \
     -Tmean \
-    -kernel 3d \
+    -kernel 3D \
     -fmedian ${DIFF_DATA_DIR}/data_b0s_mc_mean_median.nii.gz
 
 mrview \
@@ -157,7 +157,7 @@ while [ "$MASKING_DONE" == "N" ]; do
     ${FSL_LOCAL}/fslmaths \
         $current_iter_epi \
         -Tmean \
-        -kernel 3d \
+        -kernel 3D \
         -fmedian \
         -thr ${MASK_THRESHOLD} \
         -bin \

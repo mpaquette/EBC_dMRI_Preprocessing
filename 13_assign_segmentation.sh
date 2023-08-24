@@ -124,12 +124,12 @@ python3 ${SCRIPTS}/average_maps.py \
 ## White Matter Mask
 ${FSL_LOCAL}/fslmaths \
     ${TISSUE_SEGMENTATION_DIR}'/WM_Classes_avg.nii.gz' \
-    -kernel 3d \
+    -kernel 3D \
     -fmedian \
     -thr 0.5 \
     -bin \
     -fillh \
-    -kernel 3d \
+    -kernel 3D \
     -dilf \
     ${TISSUE_SEGMENTATION_DIR}'/WM_Classes_avg_filt_bin.nii.gz'
 
@@ -145,7 +145,7 @@ mrview ${TISSUE_SEGMENTATION_DIR}'/WM_Classes_avg_filt_bin_connect.nii.gz'
 ## Gray Matter Mask
 ${FSL_LOCAL}/fslmaths \
     ${TISSUE_SEGMENTATION_DIR}'/GM_Classes_avg.nii.gz' \
-    -kernel 3d \
+    -kernel 3D \
     -fmedian \
     -thr 0.5 \
     -bin \
@@ -164,7 +164,7 @@ mrview ${TISSUE_SEGMENTATION_DIR}'/GM_Classes_avg_filt_bin_connect.nii.gz'
 ## No Brain Mask
 ${FSL_LOCAL}/fslmaths \
     ${TISSUE_SEGMENTATION_DIR}'/NoBrain_Classes_avg.nii.gz' \
-    -kernel 3d \
+    -kernel 3D \
     -fmedian \
     -thr 0.5 \
     -bin \
@@ -204,7 +204,7 @@ ${FSL_LOCAL}/fslmaths \
 	${TISSUE_SEGMENTATION_DIR}'/mask.nii.gz' \
 	-sub \
 	${TISSUE_SEGMENTATION_DIR}'/NoBrain_Classes_avg_filt_bin_connect.nii.gz' \
-    -kernel 3d \
+    -kernel 3D \
     -eroF \
     -dilF \
 	${TISSUE_SEGMENTATION_DIR}'/mask_accurate.nii.gz' 

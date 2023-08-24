@@ -39,7 +39,7 @@ while [ "$MASKING_DONE" == "N" ]; do
         # Generate mask by thresholing the b0 volumes (FLS maths)
         ${FSL_LOCAL}/fslmaths \
                 $current_iter_flash \
-                -kernel 3d \
+                -kernel 3D \
                 -fmedian \
                 -thr ${MASK_THRESHOLD_FLASH} \
                 -bin \
