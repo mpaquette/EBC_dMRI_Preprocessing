@@ -19,3 +19,7 @@ mv SCANLIST.txt ${CONFIG_DIR}/SCANLIST_unsorted.txt
 python3 ${SCRIPTS}/sort_scanlist.py --in ${CONFIG_DIR}/SCANLIST_unsorted.txt --out SCANLIST.txt
 
 echo $0 " Done" 
+
+
+cat ${LOCAL_DIR}/SCANLIST.txt
+
