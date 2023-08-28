@@ -25,7 +25,7 @@ mkdir -p \
     ${TOPUP_DIR} \
     ${TISSUE_SEGMENTATION_DIR} \
     ${ODF_DIR} \
-    ${JUNA_DIR}
+    ${JUNA_DIR} \
     ${QA_DIR}
 
 
