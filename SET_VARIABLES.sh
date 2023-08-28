@@ -37,6 +37,15 @@ FLASH_ULTRA_HIGHRES=32
 
 ####################################
 
+# FOV wraping mask paths
+
+FOV_MASK_PATHS='/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_1_mod.nii.gz '\ 
+
+FOV_OVERLAP_PATHS='/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_overlap_1.nii.gz '\
+                  '/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_overlap_2.nii.gz '\
+                  '/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_overlap_3.nii.gz '\
+
+
 # Flag including an additional one-step nonlinear registration to correct for slight distortions between FLASH and EPI scans
 # This issue was mitigated by a recent Bruker Patch
 FLAG_FLASH_CORR=YES #YES/NO # YES is still default for all brain even post "patch" 
