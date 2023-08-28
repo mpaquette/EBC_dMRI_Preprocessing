@@ -9,14 +9,14 @@ BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/053_C_C_JOHNNY/raw/20230418_183125_053_C
 # Select Scans for Processing
 
 # Reorientation Check
-CHECK_REORIENT_SCAN=26
+CHECK_REORIENT_SCAN=26 # Typically the first B0 
 
 # Noisemap
 NOISE_SCAN=14
 
-# Topup
-TOPUP_LR_RUN=26
-TOPUP_RL_RUN=8
+# Topup (deprecated)
+TOPUP_LR_RUN=26 # Typically the first B0 
+TOPUP_RL_RUN=8 # Typically the corresponding revB0 
 
 
 # Diffusion Data
@@ -39,7 +39,7 @@ FLASH_ULTRA_HIGHRES=32
 
 # Flag including an additional one-step nonlinear registration to correct for slight distortions between FLASH and EPI scans
 # This issue was mitigated by a recent Bruker Patch
-FLAG_FLASH_CORR=YES #YES/NO # YES is stilld default for all brain even post "patch" 
+FLAG_FLASH_CORR=YES #YES/NO # YES is still default for all brain even post "patch" 
 
 
 # Use nonlinear registration to correct for non EPI traj adjusted reversed PE scans
