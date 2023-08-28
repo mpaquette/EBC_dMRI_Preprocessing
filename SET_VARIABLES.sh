@@ -3,47 +3,47 @@
 # This file needs to be copied in the preprocessing folder of each respective subject. Potential changes in processing should be made in this folder.
 
 # Folder of Bruker Data in Bruker Format
-BRUKER_RAW_DIR=
+BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/053_C_C_JOHNNY/raw/20230418_183125_053_C_C_JOHNNY_1_2/
 
 #########################################
 # Select Scans for Processing
 
 # Reorientation Check
-CHECK_REORIENT_SCAN=
+CHECK_REORIENT_SCAN=26
 
 # Noisemap
-NOISE_SCAN=
+NOISE_SCAN=14
 
 # Topup
-TOPUP_LR_RUN=
-TOPUP_RL_RUN=
+TOPUP_LR_RUN=26
+TOPUP_RL_RUN=8
 
 
 # Diffusion Data
-DIFF_SCANS=()
-DATA_RESCALING=   
+DIFF_SCANS=(26 16 18 17 23 19 20 21 22)
+DATA_RESCALING=0.000683 
 MASK_THRESHOLD=0.1
-HEAT_CORRECTION= #YES/NO
+HEAT_CORRECTION=YES #YES/NO # YES is now default for all brain
 
 
 # FLASH Scans
-FLASH_FA_05=
-FLASH_FA_12p5=
-FLASH_FA_25=
-FLASH_FA_50=
-FLASH_FA_80=
-FLASH_HIGHRES=
-FLASH_ULTRA_HIGHRES=
+FLASH_FA_05=4
+FLASH_FA_12p5=25
+FLASH_FA_25=10
+FLASH_FA_50=6
+FLASH_FA_80=7
+FLASH_HIGHRES=29
+FLASH_ULTRA_HIGHRES=32
 
 ####################################
 
 # Flag including an additional one-step nonlinear registration to correct for slight distortions between FLASH and EPI scans
 # This issue was mitigated by a recent Bruker Patch
-FLAG_FLASH_CORR= #YES/NO
+FLAG_FLASH_CORR=YES #YES/NO # YES is stilld default for all brain even post "patch" 
 
 
 # Use nonlinear registration to correct for non EPI traj adjusted reversed PE scans
-FLAG_TOPUP_RETRO_RECON= #YES/NO
+FLAG_TOPUP_RETRO_RECON=NO #YES/NO
 RETRO_RECON_NUMBER=
 
 ######
@@ -63,8 +63,14 @@ N_DIRECTION="58"
 TE="0.1"
 PE_DIRECTION="1"
 
-# Kernel ratio for the deconvolution
-RATIOS=(1.1 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.5 4.0 4.5 5.0 5.5 6.0 7.0 8.0 10.0)
+# parameter for LSD
+LSD_RATIOS=(1.1 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.5 4.0 4.5 5.0 5.5 6.0 7.0 8.0 10.0)
+LSD_SHMAX=8
+LSD_PEAKRELTH=0.25 
+LSD_PEAKANGSEP=25 # deg
+LSD_PATCHSIZE=3
+
+
 
 
 # Fetch file directory as Variable
@@ -93,14 +99,16 @@ EDDY_FIELDS_DIR="${DIFF_DIR}/eddy_fields/"
 EDDY_FIELDS_REL_DIR="${DIFF_DIR}/eddy_fields_rel/"
 EDDY_FIELDS_JAC_DIR="${DIFF_DIR}/eddy_fields_jac/"
 NII_RAW_DIR="${LOCAL_DIR}/nifti_raw/"
+UNWRAP_DIR="${LOCAL_DIR}/fov_unwrap_raw/"
 NOISEMAP_DIR="${DIFF_DIR}/noisemap/"
 REORIENT_DIR="${DIFF_DIR}/mni_reorient_check/"
-SPLIT_DIR=${DIFF_DATA_DIR}/split/
-SPLIT_WARPED_DIR=${DIFF_DATA_DIR}/split_warped/
+SPLIT_DIR="${DIFF_DATA_DIR}/split/"
+SPLIT_WARPED_DIR="${DIFF_DATA_DIR}/split_warped/"
 TOPUP_DIR="${DIFF_DIR}/topup/"
 TISSUE_SEGMENTATION_DIR="${DIFF_DIR}/segmentation/"
 ODF_DIR="${DIFF_DIR}/odf/"
 JUNA_DIR="${DIFF_DIR}/juna_registration/"
+QA_DIR="${DIFF_DIR}/quality_metrics/"
 
 # FLASH Data Folder Variables
 FLASH_DIR="${LOCAL_DIR}/flash/"
