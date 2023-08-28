@@ -17,6 +17,7 @@ mkdir -p \
     ${EDDY_FIELDS_REL_DIR} \
     ${EDDY_FIELDS_JAC_DIR} \
     ${NII_RAW_DIR} \
+    ${UNWRAP_DIR} \
     ${NOISEMAP_DIR} \
     ${REORIENT_DIR} \
     ${SPLIT_DIR} \
@@ -25,6 +26,7 @@ mkdir -p \
     ${TISSUE_SEGMENTATION_DIR} \
     ${ODF_DIR} \
     ${JUNA_DIR}
+    ${QA_DIR}
 
 
 # Generate FLASH FOLDERS
