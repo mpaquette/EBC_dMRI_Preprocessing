@@ -1,5 +1,11 @@
 #!/bin/bash
 
+
+# EBC pipeline: Setup folder structure
+# inputs:
+# 
+
+
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
@@ -18,6 +24,7 @@ mkdir -p \
     ${EDDY_FIELDS_JAC_DIR} \
     ${NII_RAW_DIR} \
     ${UNWRAP_DIR} \
+    ${UNWRAP_PROC_DIR} \
     ${NOISEMAP_DIR} \
     ${REORIENT_DIR} \
     ${SPLIT_DIR} \

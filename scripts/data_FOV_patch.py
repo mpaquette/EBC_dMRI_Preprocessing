@@ -7,7 +7,7 @@ import nibabel as nib
 import numpy as np
 import pylab as pl
 from skimage import measure
-from scipy.ndimage import binary_dilation
+from scipy.ndimage import binary_dilation, binary_erosion
 from scipy.optimize import minimize, brute
 
 
@@ -23,8 +23,7 @@ Modified in 08/2023 to add the option of strict size.
 """
 
 
-# Neighboor size for smart overlap handeling
-radius = 5 # voxel
+DEFAULT_EXTRA_PAD = 10
 
 
 
@@ -53,11 +52,19 @@ def buildArgsParser():
     p.add_argument('--outmask', type=str, default=None,
                    help='Path for unwrapped mask of image')
 
+    p.add_argument('--outpad', type=str, default=None,
+                   help='Path for the final padding used')
+
     p.add_argument('--overmode', type=str, default='copy',
                    help='How the algorithm handles overlaps. (copy, half, smartmean or smartTV)')
 
     p.add_argument('--masksmart', type=str, default=None,
                    help='Path of the Image mask for smart overlap.')
+
+    p.add_argument('--pad', type=int, nargs='*', default=[],
+                   help='Desired final padding size (x-, x+, y-, y+, z-, z+). \
+                   If given only a single number, will act as extra padding instead. \
+                   If left empty, defaults to [{:}]'.format(DEFAULT_EXTRA_PAD))  
 
 
     return p
@@ -76,6 +83,10 @@ def main():
 
     if args.out is None:
         print('Need output fname')
+        return None
+
+    if len(args.pad) not in [0, 1, 6]:
+        print('invalid pad values')
         return None
 
 
@@ -176,6 +187,8 @@ def main():
     # i.e. cannot be an overlapping-pixel if you are not even considered a wrapped-around pixel
     mask_overlap = np.logical_and(mask_overlap, mask)
     print('We have {:} overlapping voxels'.format(mask_overlap.sum()))
+    if mask_overlap.sum() > 0:
+        print('Using "{:}" method for overlap harmonization'.format(overmode))
 
 
     # # assign each overlapping voxel to the proper sub mask id (in masks)
@@ -308,14 +321,6 @@ def main():
 
 
 
-    # define sphere filter for dilatation
-    k = int(2*np.ceil(radius)+1) # filter size
-    c = k//2 # center of filter
-    X, Y, Z = np.meshgrid(np.arange(k), np.arange(k), np.arange(k))
-    dist = np.sqrt((X-c)**2 + (Y-c)**2 + (Z-c)**2)
-    structure_element = dist <= radius
-
-
 
 
     if overmode == 'copy':
@@ -337,7 +342,14 @@ def main():
         if overmode == 'half':
             # reduce intensity in the overlap_tmp mask
             data_tmp[overlap_tmp] /= 2.
-        elif overmode[:5] == 'smart':
+        elif overmode == 'smartmean':
+            # define sphere filter for dilatation
+            radius = 5 # voxel
+            k = int(2*np.ceil(radius)+1) # filter size
+            c = k//2 # center of filter
+            X, Y, Z = np.meshgrid(np.arange(k), np.arange(k), np.arange(k))
+            dist = np.sqrt((X-c)**2 + (Y-c)**2 + (Z-c)**2)
+            structure_element = dist <= radius
             # make a mask of where we have data
             mask_smart = nib.load(args.masksmart).get_fdata().astype(bool)
             smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
@@ -374,43 +386,141 @@ def main():
                 # pl.title('data around current overlap patch')
                 # pl.show()
                 #
-                if overmode == 'smartmean':
-                    # compute the means
-                    mean_in_patch = data_tmp[masks_overlap[i]].mean()
-                    mean_around_patch = data_tmp[overlap_neighbor_mask].mean()
-                    # correct accordingly to match them
-                    data_tmp[masks_overlap[i]] *= mean_around_patch/mean_in_patch
-                elif overmode == 'smartTV':
-                    # uniform intensity scaling to minimize TV
-                    # step 1: joint mask
-                    joint_mask = np.logical_or(masks_overlap[i], overlap_neighbor_mask)
-                    # step 2: bbox
-                    Xidx, Yidx, Zidx = np.nonzero(joint_mask)
-                    bbox = [(Xidx.min(), Xidx.max()), (Yidx.min(), Yidx.max()), (Zidx.min(), Zidx.max())]
-                    # setup TV function
-                    image_data_raw = data_tmp[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
-                    image_data_mask = np.logical_not(joint_mask[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1])
-                    image_mod_mask = masks_overlap[i][bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
-                    def TV(k=1.0):
-                        # compute anisotropic TV in image where mask_overlap[i] pixels are modulated by k
-                        # make patch as masked array
-                        image = np.ma.array(image_data_raw.copy(), mask=image_data_mask)
-                        # modulate
-                        image[image_mod_mask] *= k
-                        # compute Gx, Gy, Gz
-                        image_gx = image[:-1, :, :] - image[1:, :, :]
-                        image_gy = image[:, :-1, :] - image[:, 1:, :]
-                        image_gz = image[:, :, :-1] - image[:, :, 1:]
-                        # compute anisotropic TV
-                        totvar = np.abs(image_gx).sum() + np.abs(image_gy).sum() + np.abs(image_gz).sum()
-                        return totvar
-                    # minimize TV for patch
-                    bounds = [(0, 10)]
-                    x0 = brute(TV, bounds,  Ns=1000, workers=1)
-                    res = minimize(TV, x0=x0, bounds=bounds, tol=1e-16)
-                    # apply modulation to data
-                    data_tmp[masks_overlap[i]] *= res.x[0]
+                # compute the means
+                mean_in_patch = data_tmp[masks_overlap[i]].mean()
+                mean_around_patch = data_tmp[overlap_neighbor_mask].mean()
+                # correct accordingly to match them
+                data_tmp[masks_overlap[i]] *= mean_around_patch/mean_in_patch
+        elif overmode == 'smartTV':
+            # define sphere filter for dilatation and erosion
+            radius = 2 # voxel
+            k = int(2*np.ceil(radius)+1) # filter size
+            c = k//2 # center of filter
+            X, Y, Z = np.meshgrid(np.arange(k), np.arange(k), np.arange(k))
+            dist = np.sqrt((X-c)**2 + (Y-c)**2 + (Z-c)**2)
+            structure_element = dist <= radius
+            # make a mask of where we have data
+            mask_smart = nib.load(args.masksmart).get_fdata().astype(bool)
+            smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
+            smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            smart_tmp[2*X_max:3*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            smart_tmp[0*X_max:1*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            smart_tmp[1*X_max:2*X_max, 2*Y_max:3*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            smart_tmp[1*X_max:2*X_max, 0*Y_max:1*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 2*Z_max:3*Z_max] = mask_smart
+            smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 0*Z_max:1*Z_max] = mask_smart
+            smart_tmp = np.logical_and(smart_tmp, mask_save)
+            # make a list of connected component in overlap_tmp
+            labels_overlap, num_overlap = measure.label(overlap_tmp, background=0, connectivity=3, return_num=True)
+            masks_overlap = [labels_overlap==i+1 for i in range(num_overlap)]
+            count_per_id_overlap = [np.sum(m) for m in masks_overlap]
+            for i in range(len(count_per_id_overlap)):
+                print('Found continous overlap piece of size {:} vox'.format(count_per_id_overlap[i]))
+                # overlap_neighbor_mask_raw = binary_dilation(masks_overlap[i], structure_element, 1)
+                # attempt at fast dilation with bounding box
+                Xidx, Yidx, Zidx = np.nonzero(masks_overlap[i])
+                bbox = [(Xidx.min()-(radius+2), Xidx.max()+(radius+2)), (Yidx.min()-(radius+2), Yidx.max()+(radius+2)), (Zidx.min()-(radius+2), Zidx.max()+(radius+2))]
+                overlap_neighbor_mask_raw = np.zeros(masks_overlap[i].shape, dtype=bool)
+                overlap_neighbor_mask_raw[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1] = binary_dilation(masks_overlap[i][bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1], structure_element, 1)
+                # remove non-data voxel
+                # remove any overlap voxel
+                overlap_neighbor_mask = np.logical_and(np.logical_and(overlap_neighbor_mask_raw, smart_tmp), np.logical_not(overlap_tmp))
+                # make a mask of edge of patch by taking mask minus eroded_mask
+                overlap_edge_mask = np.zeros(masks_overlap[i].shape, dtype=bool)
+                overlap_edge_mask[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1] = np.logical_and(masks_overlap[i][bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1], np.logical_not(binary_erosion(masks_overlap[i][bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1], structure_element, 1)))
+                # uniform intensity scaling to minimize TV
+                # step 1: joint mask
+                joint_mask = np.logical_or(overlap_edge_mask, overlap_neighbor_mask)
+                # step 2: bbox
+                Xidx, Yidx, Zidx = np.nonzero(joint_mask)
+                bbox = [(Xidx.min(), Xidx.max()), (Yidx.min(), Yidx.max()), (Zidx.min(), Zidx.max())]
+                # setup TV function
+                image_data_raw = data_tmp[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
+                image_data_mask = np.logical_not(joint_mask[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1])
+                image_mod_mask = masks_overlap[i][bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
+                def TV(k=1.0):
+                    # compute anisotropic TV in image where mask_overlap[i] pixels are modulated by k
+                    # make patch as masked array
+                    image = np.ma.array(image_data_raw.copy(), mask=image_data_mask)
+                    # modulate
+                    image[image_mod_mask] *= k
+                    # compute Gx, Gy, Gz
+                    image_gx = image[:-1, :, :] - image[1:, :, :]
+                    image_gy = image[:, :-1, :] - image[:, 1:, :]
+                    image_gz = image[:, :, :-1] - image[:, :, 1:]
+                    # compute anisotropic TV
+                    totvar = np.abs(image_gx).sum() + np.abs(image_gy).sum() + np.abs(image_gz).sum()
+                    return totvar
+                # minimize TV for patch
+                bounds = [(0, 10)]
+                x0 = brute(TV, bounds,  Ns=1000, workers=1)
+                res = minimize(TV, x0=x0, bounds=bounds, tol=1e-16)
+                # apply modulation to data
+                data_tmp[masks_overlap[i]] *= res.x[0]
 
+            # OLD smartTV where we minimized over full mask instead of just a rim at the intersection of patch and neighboor
+            # # define sphere filter for dilatation
+            # radius = 2 # voxel
+            # k = int(2*np.ceil(radius)+1) # filter size
+            # c = k//2 # center of filter
+            # X, Y, Z = np.meshgrid(np.arange(k), np.arange(k), np.arange(k))
+            # dist = np.sqrt((X-c)**2 + (Y-c)**2 + (Z-c)**2)
+            # structure_element = dist <= radius
+            # # make a mask of where we have data
+            # mask_smart = nib.load(args.masksmart).get_fdata().astype(bool)
+            # smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
+            # smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            # smart_tmp[2*X_max:3*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            # smart_tmp[0*X_max:1*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            # smart_tmp[1*X_max:2*X_max, 2*Y_max:3*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            # smart_tmp[1*X_max:2*X_max, 0*Y_max:1*Y_max, 1*Z_max:2*Z_max] = mask_smart
+            # smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 2*Z_max:3*Z_max] = mask_smart
+            # smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 0*Z_max:1*Z_max] = mask_smart
+            # smart_tmp = np.logical_and(smart_tmp, mask_save)
+            # # make a list of connected component in overlap_tmp
+            # labels_overlap, num_overlap = measure.label(overlap_tmp, background=0, connectivity=3, return_num=True)
+            # masks_overlap = [labels_overlap==i+1 for i in range(num_overlap)]
+            # count_per_id_overlap = [np.sum(m) for m in masks_overlap]
+            # for i in range(len(count_per_id_overlap)):
+            #     print('Found continous overlap piece of size {:} vox'.format(count_per_id_overlap[i]))
+            #     # overlap_neighbor_mask_raw = binary_dilation(masks_overlap[i], structure_element, 1)
+            #     # attempt at fast dilation with bounding box
+            #     Xidx, Yidx, Zidx = np.nonzero(masks_overlap[i])
+            #     bbox = [(Xidx.min()-(radius+2), Xidx.max()+(radius+2)), (Yidx.min()-(radius+2), Yidx.max()+(radius+2)), (Zidx.min()-(radius+2), Zidx.max()+(radius+2))]
+            #     overlap_neighbor_mask_raw = np.zeros(masks_overlap[i].shape, dtype=bool)
+            #     overlap_neighbor_mask_raw[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1] = binary_dilation(masks_overlap[i][bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1], structure_element, 1)
+            #     # remove non-data voxel
+            #     # remove any overlap voxel
+            #     overlap_neighbor_mask = np.logical_and(np.logical_and(overlap_neighbor_mask_raw, smart_tmp), np.logical_not(overlap_tmp))
+            #     # uniform intensity scaling to minimize TV
+            #     # step 1: joint mask
+            #     joint_mask = np.logical_or(masks_overlap[i], overlap_neighbor_mask)
+            #     # step 2: bbox
+            #     Xidx, Yidx, Zidx = np.nonzero(joint_mask)
+            #     bbox = [(Xidx.min(), Xidx.max()), (Yidx.min(), Yidx.max()), (Zidx.min(), Zidx.max())]
+            #     # setup TV function
+            #     image_data_raw = data_tmp[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
+            #     image_data_mask = np.logical_not(joint_mask[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1])
+            #     image_mod_mask = masks_overlap[i][bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
+            #     def TV(k=1.0):
+            #         # compute anisotropic TV in image where mask_overlap[i] pixels are modulated by k
+            #         # make patch as masked array
+            #         image = np.ma.array(image_data_raw.copy(), mask=image_data_mask)
+            #         # modulate
+            #         image[image_mod_mask] *= k
+            #         # compute Gx, Gy, Gz
+            #         image_gx = image[:-1, :, :] - image[1:, :, :]
+            #         image_gy = image[:, :-1, :] - image[:, 1:, :]
+            #         image_gz = image[:, :, :-1] - image[:, :, 1:]
+            #         # compute anisotropic TV
+            #         totvar = np.abs(image_gx).sum() + np.abs(image_gy).sum() + np.abs(image_gz).sum()
+            #         return totvar
+            #     # minimize TV for patch
+            #     bounds = [(0, 10)]
+            #     x0 = brute(TV, bounds,  Ns=1000, workers=1)
+            #     res = minimize(TV, x0=x0, bounds=bounds, tol=1e-16)
+            #     # apply modulation to data
+            #     data_tmp[masks_overlap[i]] *= res.x[0]
 
 
 
@@ -436,9 +546,22 @@ def main():
 
 
     # pad by (PADDINGS. PADDING) or (PADDINGS. PADDING+1) (to make in even)
-    PADDING = 10
-    # PADDINGS = [(PADDING, PADDING+(x%2)) for x in data_crop.shape[:3]] # this enforces even
-    PADDINGS = [(PADDING, PADDING+((4-1) -((x+2*PADDING-1)%4))) for x in data_crop.shape[:3]] # this enforces mult 4 and doesnt assumes 2*PADDING is div 4
+    if len(args.pad) != 6:
+        if len(args.pad) == 0:
+            PADDING = DEFAULT_EXTRA_PAD
+        elif len(args.pad) == 1:
+            PADDING = args.pad[0]
+
+        # PADDINGS = [(PADDING, PADDING+(x%2)) for x in data_crop.shape[:3]] # this enforces even
+        PADDINGS = [(PADDING, PADDING+((4-1) -((x+2*PADDING-1)%4))) for x in data_crop.shape[:3]] # this enforces mult 4 and doesnt assumes 2*PADDING is div 4
+    else:
+        # PADDINGS is whatever we want (the pad argument) minus what was already done by the unwrap
+        PADDINGS = [(args.pad[i] - minimal_padding[i], args.pad[i+1] - minimal_padding[i+1]) for i in [0, 2, 4]]
+        if np.any(np.array(PADDINGS) < 0):
+            print('Incompatible unwrap and final padding')
+            print(PADDINGS)
+            return None
+
     print('Additional padding: ', PADDINGS)
 
     mask_crop_pad = np.pad(mask_crop, PADDINGS)
@@ -446,15 +569,18 @@ def main():
     data_crop_pad = np.pad(data_crop, PADDINGS) # still 4D
 
 
+    if args.outpad is not None:
+        final_pad = [PADDINGS[0][0] + minimal_padding[0], \
+                     PADDINGS[0][1] + minimal_padding[1], \
+                     PADDINGS[1][0] + minimal_padding[2], \
+                     PADDINGS[1][1] + minimal_padding[3], \
+                     PADDINGS[2][0] + minimal_padding[4], \
+                     PADDINGS[2][1] + minimal_padding[5]]
+        with open(args.outpad, 'w') as f:
+            f.write(' '.join([str(n) for n in final_pad]))
+
+
     print('Adding translation to affine')
-    # # TODO compute appropriate translation using minimal_padding to modify affine
-    # affine = data_img.affine
-    # #  add translation corresponding to NPAD+top_size (x,y,z) i.e. minimal_padding[1, 3, 5]
-    # affine[0, 3] -= (PADDINGS[0][1]+minimal_padding[1])*data_img.header.get_zooms()[0] # X_hi
-    # affine[1, 3] += (PADDINGS[1][1]+minimal_padding[3])*data_img.header.get_zooms()[1] # Y_hi
-    # affine[2, 3] -= (PADDINGS[2][1]+minimal_padding[5])*data_img.header.get_zooms()[2] # Z_hi
-
-
     affine = data_img.affine
     Rot_q_to_s = data_img.header.get_sform()[:3,:3]
     translation_q = np.array([-(PADDINGS[0][0]+minimal_padding[0]), -(PADDINGS[1][0]+minimal_padding[2]), -(PADDINGS[2][0]+minimal_padding[4])]) # in voxel # for raw_nifti
@@ -462,7 +588,7 @@ def main():
 
 
 
-
+    print('Final dims: ', data_crop_pad.squeeze().shape)
 
 
     nib.Nifti1Image(data_crop_pad.squeeze(), affine).to_filename(args.out) # squeeze out fake 4th dim for 3D arrays
