@@ -9,9 +9,11 @@
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
+
 # Generate Diffusion Folders
 mkdir -p \
     ${DIFF_DIR} \
+    ${LOG_DIR} \
     ${DIFF_DATA_DIR} \
     ${DIFF_DATA_N4_DIR} \
     ${DIFF_DATA_NORM_RELEASE_DIR} \
@@ -49,4 +51,21 @@ mkdir -p  \
     ${FLASH_DIR_WARP}
 
 
+
+# Init or clear viz log file 
+THISLOG=${LOG_DIR}/01.sh
+echo "# START-OF-PROC" > $THISLOG
+
+# add END-OF-PROC print to logfile
+echo "# END-OF-PROC" >> $THISLOG
+
+
+
+
+
+
+
+
+
 echo $0 " Done" 
+
