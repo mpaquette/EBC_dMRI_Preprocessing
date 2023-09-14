@@ -14,6 +14,10 @@
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
+# Init or clear viz log file 
+THISLOG=${LOG_DIR}/04.sh
+echo "# START-OF-PROC" > $THISLOG
+
 
 # copy FLASH mask to unwrap processing folder
 FOVARR=($FOV_MASK_PATHS)
@@ -44,25 +48,34 @@ OVERARR=($FOV_OVERLAP)
 
 
 
-# # visual test and tweak of the mask over FLASH
-# FLASHSCAN=${NII_RAW_DIR}/*X${FLASH_FA_25}P1.nii.gz
 
-# ## craft mrview command for mask
-# MRVIEW_STRING_FOVMASK=''
-# for t in ${FOVARR[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
 
-# MRVIEW_STRING_OVERMASK=''
-# for t in ${OVERARR[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
+
+# visual test and tweak of the mask over FLASH
+FLASHSCAN=${NII_RAW_DIR}/*X${FLASH_FA_25}P1.nii.gz
+
+## craft mrview command for mask
+MRVIEW_STRING_FOVMASK=''
+for t in ${FOVARR[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
+
+MRVIEW_STRING_OVERMASK=''
+for t in ${OVERARR[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
 
 # mrview $FLASHSCAN -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
+echo -e "\necho \"Check FLASH-drawn FOV masks for FLASH.\"" >> $THISLOG
+echo "mrview ${FLASHSCAN} -interpolation 0 ${MRVIEW_STRING_FOVMASK} ${MRVIEW_STRING_OVERMASK}" >> $THISLOG
 
-# # visual test and tweak of the mask over DWI
-# B0SCAN=${NII_RAW_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz
+# visual test and tweak of the mask over DWI
+B0SCAN=${NII_RAW_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz
 # mrview $B0SCAN -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
+echo -e "\necho \"Check FLASH-drawn FOV masks for EPI.\"" >> $THISLOG
+echo "mrview ${B0SCAN} -interpolation 0 ${MRVIEW_STRING_FOVMASK} ${MRVIEW_STRING_OVERMASK}" >> $THISLOG
+
+
 
 
 
@@ -93,6 +106,15 @@ do
 done
 
 
+echo -e "\necho \"Check FLASH vs FLASH N4 ${N4_ITER}x.\"" >> $THISLOG
+echo "mrview -load ${IMAGE_FOR_MASK} -interpolation 0 -load ${current_iter_flash} -interpolation 0" >> $THISLOG
+
+
+
+
+
+
+
 # Get initial mask threshold from average image intensity
 MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats $current_iter_flash -m)
 MASK_THRESHOLD_FLASH=$(echo "scale=6 ; $MASK_THRESHOLD_FLASH / 2" | bc) # half it
@@ -114,6 +136,8 @@ ${FSL_LOCAL}/fslmaths \
 
 # mrview $current_iter_flash \
 #        -overlay.load ${UNWRAP_PROC_DIR}/mask_th_flash.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1
+echo -e "\necho \"Check threshold based FLASH mask.\"" >> $THISLOG
+echo "mrview ${current_iter_flash} -interpolation 0 -overlay.load ${UNWRAP_PROC_DIR}/mask_th_flash.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1" >> $THISLOG
 
 
 
@@ -123,14 +147,16 @@ bet2 $current_iter_flash \
      -m \
      -n \
      -f 0.1 \
-     -r 60 \
-     -v
+     -r 60 
 
 
 
 # mrview $current_iter_flash \
 #        -overlay.load ${UNWRAP_PROC_DIR}/flash_bet_mask.nii.gz -overlay.opacity 0.2 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 1 \
 #        -overlay.load ${UNWRAP_PROC_DIR}/mask_th_flash.nii.gz  -overlay.opacity 0.2 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 1 \
+echo -e "\necho \"Check BET FLASH mask.\"" >> $THISLOG
+echo "mrview ${current_iter_flash} -interpolation 0 -overlay.load ${UNWRAP_PROC_DIR}/flash_bet_mask.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.intensity 1,1" >> $THISLOG
+
 
 
 
@@ -150,6 +176,8 @@ maskfilter ${UNWRAP_PROC_DIR}/mask_flash.nii.gz \
 
 # mrview $current_iter_flash \
 #        -overlay.load ${UNWRAP_PROC_DIR}/mask_flash.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1
+echo -e "\necho \"Check final FLASH mask.\"" >> $THISLOG
+echo "mrview ${current_iter_flash} -interpolation 0 -overlay.load ${UNWRAP_PROC_DIR}/mask_flash.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1" >> $THISLOG
 
 
 
@@ -211,10 +239,17 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
 # mrview ${NII_RAW_DIR}/*X${FLASH_FA_25}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_FA_25}P1.nii.gz
 # mrview ${NII_RAW_DIR}/*X${FLASH_FA_50}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_FA_50}P1.nii.gz
 # mrview ${NII_RAW_DIR}/*X${FLASH_FA_80}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_FA_80}P1.nii.gz
-
-
-
-
+echo -e "\necho \"Check wrap vs unwrap for FLASH.\"" >> $THISLOG
+echo -e "echo \"5 deg.\"" >> $THISLOG
+echo "mrview -load ${NII_RAW_DIR}/*X${FLASH_FA_05}P1.nii.gz -interpolation 0 -load ${UNWRAP_DIR}/*X${FLASH_FA_05}P1.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"12.5 deg.\"" >> $THISLOG
+echo "mrview -load ${NII_RAW_DIR}/*X${FLASH_FA_12p5}P1.nii.gz -interpolation 0 -load ${UNWRAP_DIR}/*X${FLASH_FA_12p5}P1.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"25 deg.\"" >> $THISLOG
+echo "mrview -load ${NII_RAW_DIR}/*X${FLASH_FA_25}P1.nii.gz -interpolation 0 -load ${UNWRAP_DIR}/*X${FLASH_FA_25}P1.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"50 deg.\"" >> $THISLOG
+echo "mrview -load ${NII_RAW_DIR}/*X${FLASH_FA_50}P1.nii.gz -interpolation 0 -load ${UNWRAP_DIR}/*X${FLASH_FA_50}P1.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"80 deg.\"" >> $THISLOG
+echo "mrview -load ${NII_RAW_DIR}/*X${FLASH_FA_80}P1.nii.gz -interpolation 0 -load ${UNWRAP_DIR}/*X${FLASH_FA_80}P1.nii.gz -interpolation 0" >> $THISLOG
 
 
 # Create DWI mask
@@ -237,6 +272,8 @@ python3 ${SCRIPTS}/correct_intensity_1d.py --in ${NII_RAW_DIR}/*X${CHECK_REORIEN
 
 
 
+echo -e "\necho \"Check B0 vs B0vcorr.\"" >> $THISLOG
+echo "mrview -load ${NII_RAW_DIR}/*X${CHECK_REORIENT_SCAN}P1.nii.gz -interpolation 0 -load ${UNWRAP_PROC_DIR}/B0_vcorr_flashmaskdil.nii.gz -interpolation 0" >> $THISLOG
 
 
 
@@ -259,6 +296,8 @@ do
 done
 
 
+echo -e "\necho \"Check B0vcorr vs N4 ${N4_ITER}x.\"" >> $THISLOG
+echo "mrview -load ${IMAGE_FOR_MASK} -interpolation 0 -load ${current_iter_dwi} -interpolation 0" >> $THISLOG
 
 
 
@@ -290,6 +329,12 @@ antsRegistration --dimensionality 3 --float 1 \
         --shrink-factors 16x8x4x2x1 \
         --smoothing-sigmas 4x3x2x1x0 \
         -v 1
+
+
+
+echo -e "\necho \"Check Flash to EPI registration.\"" >> $THISLOG
+echo "mrview -load ${data_fix_N4} -interpolation 0 -load ${data_move_N4} -interpolation 0 -load ${UNWRAP_PROC_DIR}/data_flash_warped_to_epi.nii.gz -interpolation 0" >> $THISLOG
+
 
 
 
@@ -363,22 +408,23 @@ OVERARRDWI=($FOV_OVERLAP_DWI_PATHS)
 
 
 
-# # visual test and tweak
-# B0SCAN=${NII_RAW_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz
+# visual test and tweak
+B0SCAN=${NII_RAW_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz
 
-# ## craft mrview command for mask
-# MRVIEW_STRING_FOVMASK=''
-# for t in ${FOVARRDWI[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
+## craft mrview command for mask
+MRVIEW_STRING_FOVMASK=''
+for t in ${FOVARRDWI[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
 
-# MRVIEW_STRING_OVERMASK=''
-# for t in ${OVERARRDWI[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
+MRVIEW_STRING_OVERMASK=''
+for t in ${OVERARRDWI[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
 
 # mrview $B0SCAN    -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
-
+echo -e "\necho \"Check registered FOV masks for EPI.\"" >> $THISLOG
+echo "mrview ${B0SCAN} -interpolation 0 ${MRVIEW_STRING_FOVMASK} ${MRVIEW_STRING_OVERMASK}" >> $THISLOG
 
 
 
@@ -418,6 +464,13 @@ done
 #     mrview $IM_IN $IM_OUT
 # done
 
+echo -e "\necho \"Check wrap vs unwrap for DWI.\"" >> $THISLOG
+for t in ${DIFF_SCANS[@]}; do
+    IM_IN=${NII_RAW_DIR}/*X${t}P1.nii.gz;
+    IM_OUT=${UNWRAP_DIR}/$(basename $IM_IN);
+    echo "mrview -load ${IM_IN} -interpolation 0 -load ${IM_OUT} -interpolation 0" >> $THISLOG
+done
+
 
 
 
@@ -441,6 +494,9 @@ flirt -in $IM_MOV \
       -v
 
 # mrview $IM_FIX ${UNWRAP_PROC_DIR}/data_flash_warped_to_hr.nii.gz
+echo -e "\necho \"Check Flash HIGHRES registration.\"" >> $THISLOG
+echo "mrview -load ${IM_FIX} -interpolation 0 -load ${IM_MOV} -interpolation 0 -load ${UNWRAP_PROC_DIR}/data_flash_warped_to_hr.nii.gz -interpolation 0" >> $THISLOG
+
 
 
 
@@ -529,22 +585,23 @@ done
 
 
 
-# # visual test and tweak of the mask over FLASH
-# HRSCAN=${NII_RAW_DIR}/*X${FLASH_HIGHRES}P1.nii.gz
+# visual test and tweak of the mask over FLASH
+HRSCAN=${NII_RAW_DIR}/*X${FLASH_HIGHRES}P1.nii.gz
 
-# ## craft mrview command for mask
-# MRVIEW_STRING_FOVMASK=''
-# for t in ${FOVARRHR[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
+## craft mrview command for mask
+MRVIEW_STRING_FOVMASK=''
+for t in ${FOVARRHR[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
 
-# MRVIEW_STRING_OVERMASK=''
-# for t in ${OVERARRHR[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
+MRVIEW_STRING_OVERMASK=''
+for t in ${OVERARRHR[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
 
 # mrview $HRSCAN -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
-
+echo -e "\necho \"Check registered FOV masks for HIGHRES.\"" >> $THISLOG
+echo "mrview ${HRSCAN} -interpolation 0 ${MRVIEW_STRING_FOVMASK} ${MRVIEW_STRING_OVERMASK}" >> $THISLOG
 
 
 
@@ -564,7 +621,8 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
 
 
 # mrview ${NII_RAW_DIR}/*X${FLASH_HIGHRES}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_HIGHRES}P1.nii.gz
-
+echo -e "\necho \"Check wrap vs unwrap for HIGHRES.\"" >> $THISLOG
+echo "mrview -load ${IM_IN} -interpolation 0 -load ${IM_OUT} -interpolation 0" >> $THISLOG
 
 
 
@@ -596,6 +654,8 @@ flirt -in $IM_MOV \
       -v
 
 # mrview $IM_FIX ${UNWRAP_PROC_DIR}/data_flash_warped_to_uhr.nii.gz
+echo -e "\necho \"Check Flash ULTRAHIGHRES registration.\"" >> $THISLOG
+echo "mrview -load ${IM_FIX} -interpolation 0 -load ${IM_MOV} -interpolation 0 -load ${UNWRAP_PROC_DIR}/data_flash_warped_to_uhr.nii.gz -interpolation 0" >> $THISLOG
 
 
 
@@ -684,21 +744,24 @@ done
 
 
 
-# # visual test and tweak of the mask over FLASH
-# UHRSCAN=${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
+# visual test and tweak of the mask over FLASH
+UHRSCAN=${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
 
-# ## craft mrview command for mask
-# MRVIEW_STRING_FOVMASK=''
-# for t in ${FOVARRUHR[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
+## craft mrview command for mask
+MRVIEW_STRING_FOVMASK=''
+for t in ${FOVARRUHR[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
 
-# MRVIEW_STRING_OVERMASK=''
-# for t in ${OVERARRUHR[@]}; do
-#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-# done
+MRVIEW_STRING_OVERMASK=''
+for t in ${OVERARRUHR[@]}; do
+  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+done
 
 # mrview $UHRSCAN -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
+echo -e "\necho \"Check registered FOV masks for ULTRAHIGHRES.\"" >> $THISLOG
+echo "mrview ${UHRSCAN} -interpolation 0 ${MRVIEW_STRING_FOVMASK} ${MRVIEW_STRING_OVERMASK}" >> $THISLOG
+
 
 
 
@@ -724,21 +787,16 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
 
 
 # mrview ${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
+echo -e "\necho \"Check wrap vs unwrap for ULTRAHIGHRES.\"" >> $THISLOG
+echo "mrview -load ${IM_IN} -interpolation 0 -load ${IM_OUT} -interpolation 0" >> $THISLOG
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+# add END-OF-PROC print to logfile
+echo -e "\n# END-OF-PROC" >> $THISLOG
+#
+echo $0 " Done" 
 

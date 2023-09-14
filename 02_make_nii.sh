@@ -17,11 +17,11 @@ echo "# START-OF-PROC" > $THISLOG
 ${SOFTWARE}/bru2/Bru2 -a -p -z -v ${BRUKER_RAW_DIR}/subject
 mv ${BRUKER_RAW_DIR}/*.nii.gz ${NII_RAW_DIR}
 
-echo "echo \"list raw data folder.\"" >> $THISLOG
+echo -e "\necho \"list raw data folder.\"" >> $THISLOG
 echo "ls -lhr ${NII_RAW_DIR}" >> $THISLOG 
 
 
 # add END-OF-PROC print to logfile
-echo "# END-OF-PROC" >> $THISLOG
+echo -e "\n# END-OF-PROC" >> $THISLOG
 #
 echo $0 " Done" 

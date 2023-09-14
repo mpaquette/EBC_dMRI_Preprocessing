@@ -9,6 +9,11 @@
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
+# Init or clear viz log file 
+THISLOG=${LOG_DIR}/03.sh
+echo "# START-OF-PROC" > $THISLOG
+
+
 # Generate New Scanlist File
 >SCANLIST.txt
 
@@ -24,8 +29,15 @@ mv SCANLIST.txt ${CONFIG_DIR}/SCANLIST_unsorted.txt
 
 python3 ${SCRIPTS}/sort_scanlist.py --in ${CONFIG_DIR}/SCANLIST_unsorted.txt --out SCANLIST.txt
 
-echo $0 " Done" 
-
 
 cat ${LOCAL_DIR}/SCANLIST.txt
 
+
+echo -e "\necho \"list scans.\"" >> $THISLOG
+echo "cat ${LOCAL_DIR}/SCANLIST.txt" >> $THISLOG
+
+
+# add END-OF-PROC print to logfile
+echo -e "\n# END-OF-PROC" >> $THISLOG
+#
+echo $0 " Done" 
