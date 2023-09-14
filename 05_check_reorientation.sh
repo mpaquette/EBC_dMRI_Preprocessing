@@ -10,7 +10,7 @@ echo "# START-OF-PROC" > $THISLOG
 
 # Copy nii files to topup directory
 echo "Copy nii files to MNI reorient directory"
-cp ${NII_RAW_DIR}/*X${CHECK_REORIENT_SCAN}P1.nii.gz ${REORIENT_DIR}/data.nii.gz
+cp ${UNWRAP_DIR}/*X${CHECK_REORIENT_SCAN}P1.nii.gz ${REORIENT_DIR}/data.nii.gz
 
 
 # Reshape image matrix to resemble MNI space

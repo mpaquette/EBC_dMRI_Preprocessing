@@ -49,6 +49,9 @@ def buildArgsParser():
     p.add_argument('--loghis', dest='loghist', action='store_true',
                             help='Plot histogram with log axis')
 
+    p.add_argument('--hisvert', dest='hist_vert', type=float,
+                           help='Vertical line for historgram')
+
     return p
 
 
@@ -196,6 +199,8 @@ def main():
         if plot_histogram_log == True:
             pl.yscale('log')
         pl.grid('minor')
+        if args.hist_vert is not None:
+            pl.axvline(args.hist_vert, color='red', alpha=0.5, linewidth=2, linestyle='dashed')
 
 
     pl.show()
