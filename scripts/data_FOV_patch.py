@@ -276,8 +276,8 @@ def main():
     # laziest solution
     if data.ndim == 3:
         data = data[..., None] # make it 4D
-    data_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max, data.shape[3]), np.float32) # this is now always 4D
-    mask_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
+    data_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max, data.shape[3]), dtype=np.float32) # this is now always 4D
+    mask_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), dtype=bool)
 
     # main block, copy all apart from inside combined FOV wrap mask
     mask_tmp[X_max:2*X_max, Y_max:2*Y_max, Z_max:2*Z_max] = 1
@@ -286,7 +286,7 @@ def main():
     # for the 6 secondary block, loop over mask, group together same type and paste
     for mask_type in range(6):
         if np.any(masks_edge==mask_type):
-            new_mask = np.zeros((X_max, Y_max, Z_max), bool)
+            new_mask = np.zeros((X_max, Y_max, Z_max), dtype=bool)
             for i, m in enumerate(masks):
                 if masks_edge[i]==mask_type:
                     new_mask = np.logical_or(new_mask, m)
@@ -330,7 +330,7 @@ def main():
         pass
     else:
         # make a overlap mask
-        overlap_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
+        overlap_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), dtype=bool)
         overlap_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_overlap
         overlap_tmp[2*X_max:3*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_overlap
         overlap_tmp[0*X_max:1*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_overlap
@@ -352,7 +352,7 @@ def main():
             structure_element = dist <= radius
             # make a mask of where we have data
             mask_smart = nib.load(args.masksmart).get_fdata().astype(bool)
-            smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
+            smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), dtype=bool)
             smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
             smart_tmp[2*X_max:3*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
             smart_tmp[0*X_max:1*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
@@ -401,7 +401,7 @@ def main():
             structure_element = dist <= radius
             # make a mask of where we have data
             mask_smart = nib.load(args.masksmart).get_fdata().astype(bool)
-            smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
+            smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), dtype=bool)
             smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
             smart_tmp[2*X_max:3*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
             smart_tmp[0*X_max:1*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
@@ -468,7 +468,7 @@ def main():
             # structure_element = dist <= radius
             # # make a mask of where we have data
             # mask_smart = nib.load(args.masksmart).get_fdata().astype(bool)
-            # smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), bool)
+            # smart_tmp = np.zeros((3*X_max, 3*Y_max, 3*Z_max), dtype=bool)
             # smart_tmp[1*X_max:2*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
             # smart_tmp[2*X_max:3*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
             # smart_tmp[0*X_max:1*X_max, 1*Y_max:2*Y_max, 1*Z_max:2*Z_max] = mask_smart
@@ -525,14 +525,6 @@ def main():
 
 
 
-    Xidx, Yidx, Zidx = np.nonzero(mask_tmp)
-    bbox = [(Xidx.min(), Xidx.max()), (Yidx.min(), Yidx.max()), (Zidx.min(), Zidx.max())]
-    print('Bounding box = [({:}  {:}), ({:}  {:}), ({:}  {:})]'.format(bbox[0][0], bbox[0][1], bbox[1][0], bbox[1][1], bbox[2][0], bbox[2][1]))
-
-
-    data_crop = data_tmp[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1] # still 4D
-    mask_crop = mask_save[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
-
 
 
     # define data bounding box from mask
@@ -541,8 +533,11 @@ def main():
     print('Bounding box = [({:}  {:}), ({:}  {:}), ({:}  {:})]'.format(bbox[0][0], bbox[0][1], bbox[1][0], bbox[1][1], bbox[2][0], bbox[2][1]))
 
 
-    data_crop = data_tmp[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1] # still 4D
     mask_crop = mask_save[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1]
+    del mask_save
+    data_crop = data_tmp[bbox[0][0]:bbox[0][1]+1, bbox[1][0]:bbox[1][1]+1, bbox[2][0]:bbox[2][1]+1] # still 4D
+    del data_tmp
+
 
 
     # pad by (PADDINGS. PADDING) or (PADDINGS. PADDING+1) (to make in even)
@@ -565,9 +560,11 @@ def main():
     print('Additional padding: ', PADDINGS)
 
     mask_crop_pad = np.pad(mask_crop, PADDINGS)
+    del mask_crop
     PADDINGS.append((0, 0)) # null padding for 4th dim
     data_crop_pad = np.pad(data_crop, PADDINGS) # still 4D
-
+    del data_crop
+    
 
     if args.outpad is not None:
         final_pad = [PADDINGS[0][0] + minimal_padding[0], \

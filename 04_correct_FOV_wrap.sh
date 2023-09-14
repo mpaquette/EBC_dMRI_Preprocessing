@@ -15,7 +15,7 @@
 source ./SET_VARIABLES.sh
 
 
-# copy mask to unwrap processing folder
+# copy FLASH mask to unwrap processing folder
 FOVARR=($FOV_MASK_PATHS)
 FOV_MASK=''
 for t in ${FOVARR[@]}; do
@@ -95,7 +95,7 @@ done
 
 # Get initial mask threshold from average image intensity
 MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats $current_iter_flash -m)
-MASK_THRESHOLD_FLASH=$(echo "scale=6 ; $MASK_THRESHOLD_FLASH / 2" | bc)
+MASK_THRESHOLD_FLASH=$(echo "scale=6 ; $MASK_THRESHOLD_FLASH / 2" | bc) # half it
 
 
 
@@ -164,7 +164,7 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
         --mask $FOV_MASK \
         --maskover $FOV_OVERLAP \
         --out $IM_OUT \
-        --outmask ${UNWRAP_DIR}/mask.nii.gz \
+        --outmask ${UNWRAP_DIR}/mask_FOV_extent_flash.nii.gz \
         --outpad ${UNWRAP_PROC_DIR}/total_padding.txt
 
 
@@ -387,12 +387,14 @@ OVERARRDWI=($FOV_OVERLAP_DWI_PATHS)
 
 
 # Noisemap
+# save FOV extent mask of EPI
 IM_IN=${NII_RAW_DIR}/*X${NOISE_SCAN}P1.nii.gz
 IM_OUT=${UNWRAP_DIR}/$(basename $IM_IN)
 python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
         --mask $FOV_MASK_DWI_PATHS \
         --maskover $FOV_OVERLAP_DWI_PATHS \
         --out $IM_OUT \
+        --outmask ${UNWRAP_DIR}/mask_FOV_extent_epi.nii.gz \
         --pad $(cat ${UNWRAP_PROC_DIR}/total_padding.txt)
 
 
@@ -409,12 +411,12 @@ done
 
 
 
-# viz
-for t in ${DIFF_SCANS[@]}; do
-    IM_IN=${NII_RAW_DIR}/*X${t}P1.nii.gz;
-    IM_OUT=${UNWRAP_DIR}/$(basename $IM_IN);
-    mrview $IM_IN $IM_OUT
-done
+# # viz
+# for t in ${DIFF_SCANS[@]}; do
+#     IM_IN=${NII_RAW_DIR}/*X${t}P1.nii.gz;
+#     IM_OUT=${UNWRAP_DIR}/$(basename $IM_IN);
+#     mrview $IM_IN $IM_OUT
+# done
 
 
 
@@ -512,7 +514,7 @@ OVERARRHR=($FOV_OVERLAP_HR_PATHS)
 
 
 
-
+# Fix the missing voxel at the image boundary
 for t in ${FOVARRHR[@]}; do
     python3 ${SCRIPTS}/fix_hires_fovmask.py \
             $t \
@@ -555,6 +557,7 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
         --mask $FOV_MASK_HR_PATHS \
         --maskover $FOV_OVERLAP_HR_PATHS \
         --out $IM_OUT \
+        --outmask ${UNWRAP_DIR}/mask_FOV_extent_HR.nii.gz \
         --pad 20
 
 
@@ -582,7 +585,7 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
 IM_FIX=${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
 IM_MOV=$current_iter_flash
 #
-mrview $IM_FIX $IM_MOV
+# mrview $IM_FIX $IM_MOV
 
 # # dof=6 FLASH to HIGHRES reg
 flirt -in $IM_MOV \
@@ -666,7 +669,7 @@ OVERARRUHR=($FOV_OVERLAP_UHR_PATHS)
 
 
 
-
+# Fix the missing voxel at the image boundary
 for t in ${FOVARRUHR[@]}; do
     python3 ${SCRIPTS}/fix_hires_fovmask.py \
             $t \
@@ -681,21 +684,21 @@ done
 
 
 
-# visual test and tweak of the mask over FLASH
-UHRSCAN=${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
+# # visual test and tweak of the mask over FLASH
+# UHRSCAN=${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
 
-## craft mrview command for mask
-MRVIEW_STRING_FOVMASK=''
-for t in ${FOVARRUHR[@]}; do
-  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-done
+# ## craft mrview command for mask
+# MRVIEW_STRING_FOVMASK=''
+# for t in ${FOVARRUHR[@]}; do
+#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+# done
 
-MRVIEW_STRING_OVERMASK=''
-for t in ${OVERARRUHR[@]}; do
-  MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
-done
+# MRVIEW_STRING_OVERMASK=''
+# for t in ${OVERARRUHR[@]}; do
+#   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
+# done
 
-mrview $UHRSCAN -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
+# mrview $UHRSCAN -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
 
 
 
@@ -714,12 +717,13 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
         --mask $FOV_MASK_UHR_PATHS \
         --maskover $FOV_OVERLAP_UHR_PATHS \
         --out $IM_OUT \
+        --outmask ${UNWRAP_DIR}/mask_FOV_extent_UHR.nii.gz \
         --pad 40
 
 
 
 
-mrview ${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
+# mrview ${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
 
 
 
