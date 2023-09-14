@@ -97,6 +97,7 @@ declare -i N4_ITER=5
 # Local Folders for Processing
 # Diffusion Data Folder Variables
 DIFF_DIR="${LOCAL_DIR}/diff/"
+LOG_DIR="${LOCAL_DIR}/log/"
 DIFF_DATA_DIR="${DIFF_DIR}/data/"
 DIFF_DATA_N4_DIR="${DIFF_DIR}/data_N4/"
 DIFF_DATA_RELEASE_DIR="${DIFF_DIR}/data_release/"
