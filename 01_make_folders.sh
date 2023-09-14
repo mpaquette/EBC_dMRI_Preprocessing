@@ -56,16 +56,13 @@ mkdir -p  \
 THISLOG=${LOG_DIR}/01.sh
 echo "# START-OF-PROC" > $THISLOG
 
+echo "echo \"list folder structure.\"" >> $THISLOG
+echo "ls -lhr ${LOCAL_DIR}" >> $THISLOG 
+echo "ls -lhr ${DIFF_DIR}" >> $THISLOG 
+echo "ls -lhr ${FLASH_DIR}" >> $THISLOG 
+
 # add END-OF-PROC print to logfile
 echo "# END-OF-PROC" >> $THISLOG
-
-
-
-
-
-
-
-
-
+#
 echo $0 " Done" 
 
