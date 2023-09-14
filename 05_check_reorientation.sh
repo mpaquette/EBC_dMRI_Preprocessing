@@ -3,6 +3,11 @@
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
+# Init or clear viz log file 
+THISLOG=${LOG_DIR}/05.sh
+echo "# START-OF-PROC" > $THISLOG
+
+
 # Copy nii files to topup directory
 echo "Copy nii files to MNI reorient directory"
 cp ${NII_RAW_DIR}/*X${CHECK_REORIENT_SCAN}P1.nii.gz ${REORIENT_DIR}/data.nii.gz
@@ -20,6 +25,10 @@ python3 ${SCRIPTS}/reshape_volume.py \
 # Print data header information
 mrinfo ${REORIENT_DIR}/data.nii.gz 
 mrinfo ${REORIENT_DIR}/data_reshape.nii.gz 
+#
+echo -e "\necho \"Print data header information.\"" >> $THISLOG
+echo "mrinfo ${REORIENT_DIR}/data.nii.gz" >> $THISLOG
+echo "mrinfo ${REORIENT_DIR}/data_reshape.nii.gz" >> $THISLOG
 
 
 ####################################
@@ -46,15 +55,24 @@ ${FSL_LOCAL}/fslmaths ${REORIENT_DIR}/data_reshape_unscaled.nii.gz \
 
 
 # Show reoriented data alongside with MNI brain
-mrview \
-    -load ${REORIENT_DIR}/data_reshape.nii.gz \
-    -interpolation 0  \
-    -mode 2 &
+# mrview \
+#     -load ${REORIENT_DIR}/data_reshape.nii.gz \
+#     -interpolation 0  \
+#     -mode 2 &
 
-mrview \
-    -load /data/pt_02101_dMRI/software/fsl6/data/standard/MNI152_T1_1mm_brain.nii.gz \
-    -interpolation 0 \
-    -mode 2 &
+# mrview \
+#     -load /data/pt_02101_dMRI/software/fsl6/data/standard/MNI152_T1_1mm_brain.nii.gz \
+#     -interpolation 0 \
+#     -mode 2 &
+
+echo -e "\necho \"Show reoriented data alongside with MNI brain.\"" >> $THISLOG
+echo "mrview -load ${REORIENT_DIR}/data_reshape.nii.gz -interpolation 0 -mode 2 &" >> $THISLOG
+echo "mrview -load /data/pt_02101_dMRI/software/fsl6/data/standard/MNI152_T1_1mm_brain.nii.gz -interpolation 0 -mode 2" >> $THISLOG
 
 
+
+
+# add END-OF-PROC print to logfile
+echo -e "\n# END-OF-PROC" >> $THISLOG
+#
 echo $0 " Done" 
