@@ -3,22 +3,24 @@
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
+# Init or clear viz log file 
+THISLOG=${LOG_DIR}/08.sh
+echo "# START-OF-PROC" > $THISLOG
+
 
 ####################################
 # Put together the data from various files
 
 # Assemble all DIFF_SCANS from raw nifti folder
+SCANPATHS=''
+for t in ${DIFF_SCANS[@]}; do
+    SCANPATHS+=${UNWRAP_DIR}'/*X'${t}'P1.nii.gz '
+done
 echo "Loading Data"
 ${FSL_LOCAL}/fslmerge -t ${DIFF_DATA_DIR}/data.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[0]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[1]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[2]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[3]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[4]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[5]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[6]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[7]}P1.nii.gz \
-    ${NII_RAW_DIR}/*X${DIFF_SCANS[8]}P1.nii.gz 
+                         ${SCANPATHS}
+
+
 
 # Load bvecs and bvals from Bruker method file
 echo "Loading bvecs bvals"
@@ -52,6 +54,9 @@ python3 ${SCRIPTS}/reshape_volume.py \
     --ord ${RESHAPE_ARRAY_ORD} \
     --inv ${RESHAPE_ARRAY_INV} \
     --res ${RES}
+    #
+# FOV extent mask was already reshaped for EPI space
+cp ${NOISEMAP_DIR}/mask_FOV_extent.nii.gz ${DIFF_DATA_DIR}/mask_FOV_extent.nii.gz
 
 python3 ${SCRIPTS}/reorder_bvec.py \
     --in ${DIFF_DATA_DIR}/data.bvec \
@@ -82,6 +87,11 @@ ${FSL_LOCAL}/fslmaths ${DIFF_DATA_DIR}/data_unscaled.nii.gz \
 
 
 
+
+
+
+
+
 ####################################
 # Generate mask from b0 values
 
@@ -100,11 +110,49 @@ dwiextract \
     ${DIFF_DATA_DIR}/data.nii.gz \
     ${DIFF_DATA_DIR}/data_b0s.nii.gz
 
-# MC correct the b0 volumes
-${FSL_LOCAL}/mcflirt \
-    -in ${DIFF_DATA_DIR}/data_b0s.nii.gz \
-    -out ${DIFF_DATA_DIR}/data_b0s_mc.nii.gz \
-    -refvol 0
+${MRDEGIBBS3D} -force \
+    ${DIFF_DATA_DIR}/data_b0s.nii.gz \
+    ${DIFF_DATA_DIR}/data_b0s_degibbs.nii.gz \
+    -nthreads ${N_CORES}
+
+
+# MC correct the b0 volumes with flirt
+mkdir -p ${DIFF_DATA_DIR}/mc_tmp # tmp folder for flirt
+#
+${FSL_LOCAL}/fslsplit \
+        ${DIFF_DATA_DIR}/data_b0s_degibbs.nii.gz \
+        ${DIFF_DATA_DIR}/mc_tmp/
+#
+NFILES=$(ls diff/data/mc_tmp | wc -l)
+mv ${DIFF_DATA_DIR}/mc_tmp/0000.nii.gz ${DIFF_DATA_DIR}/mc_tmp/0000_mc.nii.gz
+for n in $(seq -w 0001 $( expr $NFILES - 1 )); do 
+    echo $n;
+    flirt -in ${DIFF_DATA_DIR}'/mc_tmp/'$n'.nii.gz' \
+          -ref ${DIFF_DATA_DIR}/mc_tmp/0000_mc.nii.gz \
+          -omat ${DIFF_DATA_DIR}'/mc_tmp/mat_'$n'.txt' \
+          -dof 6 \
+          -out ${DIFF_DATA_DIR}'/mc_tmp/'$n'_mc.nii.gz'     
+done
+#
+SCANPATHS=''
+for n in $(seq -w 0000 $( expr $NFILES - 1 )); do
+    SCANPATHS+=${DIFF_DATA_DIR}'/mc_tmp/'$n'_mc.nii.gz '
+done
+${FSL_LOCAL}/fslmerge -t ${DIFF_DATA_DIR}/data_b0s_mc.nii.gz \
+                         ${SCANPATHS}
+rm -Rf ${DIFF_DATA_DIR}/mc_tmp/
+#
+# 
+# ${FSL_LOCAL}/mcflirt \
+#     -in ${DIFF_DATA_DIR}/data_b0s_degibbs.nii.gz \
+#     -out ${DIFF_DATA_DIR}/data_b0s_mcflirt.nii.gz \
+#     -refvol 0 -v
+
+
+
+
+
+
 
 # Filter Volumes for mask thresholding
 ${FSL_LOCAL}/fslmaths \
