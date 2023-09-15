@@ -6,21 +6,92 @@ source ${FSL_LOCAL}/../etc/fslconf/fsl.sh
 
 
 
-# Copy nii files to topup directory
-echo "Copy nii files to topup directory"
-cp ${NII_RAW_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz ${TOPUP_DIR}/data_LR.nii.gz
+# # Copy nii files to topup directory
+# echo "Copy nii files to topup directory"
+# cp ${NII_RAW_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz ${TOPUP_DIR}/data_LR.nii.gz
+
+# if [ $FLAG_TOPUP_RETRO_RECON == "NO" ]; then
+#     cp ${NII_RAW_DIR}/*X${TOPUP_RL_RUN}P1.nii.gz ${TOPUP_DIR}/data_RL.nii.gz
+
+# elif [[ $FLAG_TOPUP_RETRO_RECON == "YES" ]]; then
+#     cp ${NII_RAW_DIR}/*X${TOPUP_RL_RUN}P${RETRO_RECON_NUMBER}.nii.gz ${TOPUP_DIR}/data_RL.nii.gz
+
+# else
+#     echo 'Please Specify $FLAG_TOPUP_RETRO_RECON'
+# fi
+
+# grab wrap raw data for rolling
+RAW_LR=${NII_RAW_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz
 
 if [ $FLAG_TOPUP_RETRO_RECON == "NO" ]; then
-    cp ${NII_RAW_DIR}/*X${TOPUP_RL_RUN}P1.nii.gz ${TOPUP_DIR}/data_RL.nii.gz
+    RAW_RL=${NII_RAW_DIR}/*X${TOPUP_RL_RUN}P1.nii.gz
 
 elif [[ $FLAG_TOPUP_RETRO_RECON == "YES" ]]; then
-    cp ${NII_RAW_DIR}/*X${TOPUP_RL_RUN}P${RETRO_RECON_NUMBER}.nii.gz ${TOPUP_DIR}/data_RL.nii.gz
+    RAW_RL=${NII_RAW_DIR}/*X${TOPUP_RL_RUN}P${RETRO_RECON_NUMBER}.nii.gz
 
 else
     echo 'Please Specify $FLAG_TOPUP_RETRO_RECON'
 fi
 
-# Reshape image matrix to resemble MNI space
+
+
+
+# invert and shift in raw_nift space
+python3 ${SCRIPTS}/roll_align_data.py \
+    --in $RAW_RL \
+    --ref $RAW_LR \
+    --out ${UNWRAP_PROC_DIR}/RL_shift_raw.nii.gz \
+    --axis 1 \
+    --inv
+
+
+
+
+# Prep FOV EPI space mask list variable
+# Wrap FOV mask to EPI raw space
+FOV_MASK_DWI_PATHS=''
+for t in ${FOVARR[@]}; do
+    filename=$(basename $t) # strip directory
+    filename=${filename%.*} # string first extension
+    filename=${filename%.*} # string second extension
+    filename=${filename::-6} # strip the "_flash_"
+    NEWNAME=${UNWRAP_PROC_DIR}/$filename'_dwi.nii.gz' # add _dwi
+    NEWNAMETMP=${UNWRAP_PROC_DIR}/$filename'_dwi_tmp.nii.gz' # add _dwi
+    FOV_MASK_DWI_PATHS+=$NEWNAME' '
+done
+# Wrap FOV mask to EPI raw space
+FOV_OVERLAP_DWI_PATHS=''
+for t in ${OVERARR[@]}; do
+    filename=$(basename $t) # strip directory
+    filename=${filename%.*} # string first extension
+    filename=${filename%.*} # string second extension
+    filename=${filename::-6} # strip the "_flash_"
+    NEWNAME=${UNWRAP_PROC_DIR}/$filename'_dwi.nii.gz' # add _dwi
+    NEWNAMETMP=${UNWRAP_PROC_DIR}/$filename'_dwi_tmp.nii.gz' # add _dwi
+    FOV_OVERLAP_DWI_PATHS+=$NEWNAME' '
+done
+FOVARRDWI=($FOV_MASK_DWI_PATHS)
+OVERARRDWI=($FOV_OVERLAP_DWI_PATHS)
+
+
+
+
+
+# this doesnt really work, it cuts little part off
+# because of mask mismatch
+IM_IN=${UNWRAP_PROC_DIR}/RL_shift_raw.nii.gz
+IM_OUT=${UNWRAP_DIR}/$(basename $RAW_RL)
+python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
+        --mask $FOVARRDWI \
+        --maskover $OVERARRDWI \
+        --out $IM_OUT \
+        --pad $(cat ${UNWRAP_PROC_DIR}/total_padding.txt)
+
+
+cp ${UNWRAP_DIR}/*X${TOPUP_LR_RUN}P1.nii.gz ${TOPUP_DIR}/data_LR.nii.gz
+cp $IM_OUT ${TOPUP_DIR}/data_RL.nii.gz
+
+
 echo "Reshape image matrix to resemble MNI space"
 python3 ${SCRIPTS}/reshape_volume.py \
     --in ${TOPUP_DIR}/data_LR.nii.gz \
@@ -31,33 +102,19 @@ python3 ${SCRIPTS}/reshape_volume.py \
 
 python3 ${SCRIPTS}/reshape_volume.py \
     --in ${TOPUP_DIR}/data_RL.nii.gz \
-    --out ${TOPUP_DIR}/data_RL_flipped.nii.gz \
+    --out ${TOPUP_DIR}/data_RL_reshape.nii.gz \
     --ord ${RESHAPE_ARRAY_ORD} \
     --inv ${RESHAPE_ARRAY_INV} \
     --res ${RES}
-
-python3 ${SCRIPTS}/reshape_volume.py \
-    --in ${TOPUP_DIR}/data_RL_flipped.nii.gz \
-    --out ${TOPUP_DIR}/data_RL_reshape.nii.gz \
-    --ord 0,1,2 \
-    --inv 0 \
-    --res ${RES}
-
-
-# Correct for shift along x axis of RL-data
-echo "Correct for shift along x axis of RL-data"
-python3 ${SCRIPTS}/roll_align_data.py \
-    --in ${TOPUP_DIR}/data_RL_reshape.nii.gz \
-    --ref ${TOPUP_DIR}/data_LR_reshape.nii.gz \
-    --out ${TOPUP_DIR}/data_RL_reshape_shift.nii.gz \
-    --axis 0
 
 
 echo "Combine the corrected data"
 ${FSL_LOCAL}/fslmerge -t \
     ${TOPUP_DIR}/data.nii.gz \
     ${TOPUP_DIR}/data_LR_reshape.nii.gz \
-    ${TOPUP_DIR}/data_RL_reshape_shift.nii.gz
+    ${TOPUP_DIR}/data_RL_reshape.nii.gz
+
+
 
 
 echo "Runing Multiple N4 on dMRI b0 Data"
@@ -76,7 +133,7 @@ do
 
         N4BiasFieldCorrection -d 4 \
                 -i ${PREVIOUS_ITER_B0} \
-                -o ${CURRENT_ITER_B0}
+                -o ${CURRENT_ITER_B0} -v
 done
 
 
@@ -85,7 +142,10 @@ echo "Show Data for Topup"
 mrview \
     -load ${CURRENT_ITER_B0} \
     -interpolation 0 \
-    -mode 2 &
+    -mode 2
+
+
+
 
 
 # Run Topup Algorithm
@@ -108,7 +168,7 @@ mrview \
     -interpolation 0 \
     -load ${TOPUP_DIR}/topup_field.nii.gz \
     -interpolation 0 \
-    -mode 2 &
+    -mode 2
 
 
 echo $0 " Done" 
