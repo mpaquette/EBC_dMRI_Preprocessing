@@ -29,6 +29,9 @@ def buildArgsParser():
     p.add_argument('--axis', dest='axis', action='store', type=int,
                             help='Name of the shifted output file')
 
+    p.add_argument('--inv', dest='inv', default=False, action='store_true',
+                            help='Invert the image on AXIS before rolling.')
+
     return p
 
 
@@ -47,7 +50,7 @@ def main():
     AXIS=args.axis
 
     print("Loading Data")
-    data_in = nib.load(PATH_IN).get_fdata()
+    data_in_raw = nib.load(PATH_IN).get_fdata()
     data_ref = nib.load(PATH_REF).get_fdata()
     aff  = nib.load(PATH_REF).affine
     dims = nib.load(PATH_REF).shape
@@ -55,6 +58,20 @@ def main():
 
     print("Rolling Array to Find Best Overlap")
     rmsd_per_roll = np.zeros(dims[AXIS])
+
+
+    if args.inv:
+        if AXIS == 0:
+            data_in = data_in_raw[::-1]
+        elif AXIS == 1:
+            data_in = data_in_raw[:, ::-1]
+        elif AXIS == 2:
+            data_in = data_in_raw[:, :, ::-1]
+    else:
+        data_in = data_in_raw
+
+
+
 
     for i_x in range(dims[AXIS]):
         rmsd_per_roll[i_x] = rmsd(data_ref, np.roll(data_in, i_x, axis = AXIS))

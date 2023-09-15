@@ -21,7 +21,7 @@ TOPUP_RL_RUN=8 # Typically the corresponding revB0
 
 # Diffusion Data
 DIFF_SCANS=(26 16 18 17 23 19 20 21 22)
-DATA_RESCALING=0.000683 
+DATA_RESCALING=0.000683   
 MASK_THRESHOLD=0.1
 HEAT_CORRECTION=YES #YES/NO # YES is now default for all brain
 
@@ -87,7 +87,7 @@ LOCAL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
 # Check the number of available cores for parallel processing
-N_CORES=48
+N_CORES=5
 
 
 # How often should N4 homogenize the data

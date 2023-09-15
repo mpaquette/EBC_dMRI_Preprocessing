@@ -334,13 +334,38 @@ while [ $MASKING_DONE == 0 ]; do
 
 done
 
-mv -f ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz ${FLASH_DIR_WARP}/mask_flash.nii.gz
+
+
+bet2 $current_iter_flash \
+     ${FLASH_DIR_WARP}/flash_bet \
+     -m \
+     -n \
+     -f 0.5 \
+     -r 60 
+
+# mrview -load ${current_iter_flash} -interpolation 0 -mode 2 -overlay.load ${FLASH_DIR_WARP}/flash_bet_mask.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3
+
+
+
+
+# add threshold mask and BET mask ofr final FLASH mask
+fslmaths      ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz \
+         -add ${FLASH_DIR_WARP}/flash_bet_mask.nii.gz \
+         -bin \
+              ${FLASH_DIR_WARP}/mask_flash.nii.gz
+
+
+
 rm -f ${FLASH_DIR_WARP}/mask_flash_*.nii.gz
+rm -f ${FLASH_DIR_WARP}/flash_bet_mask.nii.gz
 
 
 
-echo -e "\necho \"Check FLASH threshold mask.\"" >> $THISLOG
+echo -e "\necho \"Check FLASH mask.\"" >> $THISLOG
 echo "mrview -load ${current_iter_flash} -interpolation 0 -mode 2 -overlay.load ${FLASH_DIR_WARP}/mask_flash.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3" >> $THISLOG
+
+
+
 
 
 

@@ -3,109 +3,109 @@
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
-cp ${FLASH_DIR_FA05}/data_degibbs.nii.gz ${FLASH_DIR_WARP}/data_flash.nii.gz
+# cp ${FLASH_DIR_FA05}/data_degibbs.nii.gz ${FLASH_DIR_WARP}/data_flash.nii.gz
 
 
-echo 'Runing N4 on FLASH Data'
-for i in $(seq 1 $N4_ITER);
-do 
+# echo 'Runing N4 on FLASH Data'
+# for i in $(seq 1 $N4_ITER);
+# do 
 
-        current_iter_flash=${FLASH_DIR_WARP}/data_flash_N4_${i}x.nii.gz
-        current_iter_flash_field=${FLASH_DIR_WARP}/field_flash_N4_${i}x.nii.gz
+#         current_iter_flash=${FLASH_DIR_WARP}/data_flash_N4_${i}x.nii.gz
+#         current_iter_flash_field=${FLASH_DIR_WARP}/field_flash_N4_${i}x.nii.gz
 
-        if [ $i == 1 ]
-        then 
-                previous_iter_flash=${FLASH_DIR_WARP}/data_flash.nii.gz
-        else
-                previous_iter_flash=${FLASH_DIR_WARP}/data_flash_N4_$( expr $i - 1 )x.nii.gz
-        fi
+#         if [ $i == 1 ]
+#         then 
+#                 previous_iter_flash=${FLASH_DIR_WARP}/data_flash.nii.gz
+#         else
+#                 previous_iter_flash=${FLASH_DIR_WARP}/data_flash_N4_$( expr $i - 1 )x.nii.gz
+#         fi
 
-        echo 'N4 FLASH: Run '${i}
+#         echo 'N4 FLASH: Run '${i}
 
-        N4BiasFieldCorrection -d 3 \
-                -i $previous_iter_flash \
-                -o [$current_iter_flash,$current_iter_flash_field]
+#         N4BiasFieldCorrection -d 3 \
+#                 -i $previous_iter_flash \
+#                 -o [$current_iter_flash,$current_iter_flash_field]
 
 
-done
+# done
 
-# Get initial mask threshold from average image intensity
-MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats $current_iter_flash -m)
+# # Get initial mask threshold from average image intensity
+# MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats $current_iter_flash -m)
 
-echo "Creating mask for Ernst Angle FLASH data "
-MASKING_DONE="N"
-while [ "$MASKING_DONE" == "N" ]; do
+# echo "Creating mask for Ernst Angle FLASH data "
+# MASKING_DONE="N"
+# while [ "$MASKING_DONE" == "N" ]; do
 
-        # Generate mask by thresholing the b0 volumes (FLS maths)
-        ${FSL_LOCAL}/fslmaths \
-                $current_iter_flash \
-                -kernel 3D \
-                -fmedian \
-                -thr ${MASK_THRESHOLD_FLASH} \
-                -bin \
-                -fillh26 ${FLASH_DIR_WARP}/mask_flash.nii.gz \
-                -odt int
+#         # Generate mask by thresholing the b0 volumes (FLS maths)
+#         ${FSL_LOCAL}/fslmaths \
+#                 $current_iter_flash \
+#                 -kernel 3D \
+#                 -fmedian \
+#                 -thr ${MASK_THRESHOLD_FLASH} \
+#                 -bin \
+#                 -fillh26 ${FLASH_DIR_WARP}/mask_flash.nii.gz \
+#                 -odt int
 
-        # Extract the largest connected volume in generated mask
-        maskfilter \
-                -force \
-                -largest \
-                ${FLASH_DIR_WARP}/mask_flash.nii.gz connect ${FLASH_DIR_WARP}/mask_flash_connect.nii.gz
+#         # Extract the largest connected volume in generated mask
+#         maskfilter \
+#                 -force \
+#                 -largest \
+#                 ${FLASH_DIR_WARP}/mask_flash.nii.gz connect ${FLASH_DIR_WARP}/mask_flash_connect.nii.gz
 
-        # Dilate the mask 
-        maskfilter \
-                -force \
-                -npass 2 \
-                ${FLASH_DIR_WARP}/mask_flash_connect.nii.gz dilate ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz
+#         # Dilate the mask 
+#         maskfilter \
+#                 -force \
+#                 -npass 2 \
+#                 ${FLASH_DIR_WARP}/mask_flash_connect.nii.gz dilate ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz
 
-        # Check the results
-        mrview \
-                -load $current_iter_flash \
-                -interpolation 0  \
-                -mode 2 \
-                -overlay.load ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz \
-                -overlay.opacity 0.5 \
-                -overlay.interpolation 0 \
-                -overlay.colourmap 3 
+#         # Check the results
+#         mrview \
+#                 -load $current_iter_flash \
+#                 -interpolation 0  \
+#                 -mode 2 \
+#                 -overlay.load ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz \
+#                 -overlay.opacity 0.5 \
+#                 -overlay.interpolation 0 \
+#                 -overlay.colourmap 3 
 
-        echo "Did the script choose the correct threshold for the mask ? [Y/N]"
-        read MASKING_ANSWER
+#         echo "Did the script choose the correct threshold for the mask ? [Y/N]"
+#         read MASKING_ANSWER
 
-        if [ $MASKING_ANSWER == "N" ]
-        then
-        # Find THRESHOLD VALUE in a histogram
-        echo 'Adapt MASK_THRESHOLD Variable in SET_VARIABLES.sh to exclude noise peak in histogram'
-        python3 ${SCRIPTS}/quickviz.py \
-                --his $current_iter_flash \
-                --loghis 
+#         if [ $MASKING_ANSWER == "N" ]
+#         then
+#         # Find THRESHOLD VALUE in a histogram
+#         echo 'Adapt MASK_THRESHOLD Variable in SET_VARIABLES.sh to exclude noise peak in histogram'
+#         python3 ${SCRIPTS}/quickviz.py \
+#                 --his $current_iter_flash \
+#                 --loghis 
 
-        THRS_OLD=$MASK_THRESHOLD_FLASH # Saving old threshold in variable for replacement in SET_VARIABLES.txt
+#         THRS_OLD=$MASK_THRESHOLD_FLASH # Saving old threshold in variable for replacement in SET_VARIABLES.txt
 
-        echo "Previous mask threshold value:"
-        echo $MASK_THRESHOLD_FLASH
+#         echo "Previous mask threshold value:"
+#         echo $MASK_THRESHOLD_FLASH
 
-        echo 'Please provide new mask threshold value:'
-        read MASK_THRESHOLD_FLASH
-        echo "Repeating procedure with new threshold" ${MASK_THRESHOLD_FLASH}
+#         echo 'Please provide new mask threshold value:'
+#         read MASK_THRESHOLD_FLASH
+#         echo "Repeating procedure with new threshold" ${MASK_THRESHOLD_FLASH}
 
-        # Saving mask string in set variables file
-        THRS_STR_OLD="MASK_THRESHOLD_FLASH=$THRS_OLD"
-        THRS_STR_NEW="MASK_THRESHOLD_FLASH=$MASK_THRESHOLD_FLASH"
+#         # Saving mask string in set variables file
+#         THRS_STR_OLD="MASK_THRESHOLD_FLASH=$THRS_OLD"
+#         THRS_STR_NEW="MASK_THRESHOLD_FLASH=$MASK_THRESHOLD_FLASH"
      
-        elif [ $MASKING_ANSWER == "Y" ]
-        then
-        MASKING_DONE="Y"
+#         elif [ $MASKING_ANSWER == "Y" ]
+#         then
+#         MASKING_DONE="Y"
 
-        else 
-        echo "Invalid answer, please repeat"
+#         else 
+#         echo "Invalid answer, please repeat"
 
 
-        fi 
+#         fi 
 
-done 
+# done 
 
-mv -f ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz ${FLASH_DIR_WARP}/mask_flash.nii.gz
-rm -f ${FLASH_DIR_WARP}/mask_flash_*.nii.gz
+# mv -f ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz ${FLASH_DIR_WARP}/mask_flash.nii.gz
+# rm -f ${FLASH_DIR_WARP}/mask_flash_*.nii.gz
 
 
 echo 'Extracting and averaging b0s from Final Release dMRI Data'
