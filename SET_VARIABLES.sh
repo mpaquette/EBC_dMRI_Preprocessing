@@ -3,38 +3,38 @@
 # This file needs to be copied in the preprocessing folder of each respective subject. Potential changes in processing should be made in this folder.
 
 # Folder of Bruker Data in Bruker Format
-BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/007_C_C_NEGRA/raw/20210203_160848_007_C_C_NEGRA_ID11357_1_1_rr/20210203_160848_007_C_C_NEGRA_ID11357_1_1/
+BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/007_C_C_NEGRA/raw/20210217_151226_007_C_C_NEGRA_ID11357_1_2_rr/20210217_151226_007_C_C_NEGRA_ID11357_1_2/
 
 #########################################
 # Select Scans for Processing
 
 # Reorientation Check
-CHECK_REORIENT_SCAN=19 # Typically the first B0 
+CHECK_REORIENT_SCAN=14 # Typically the first B0 
 
 # Noisemap
-NOISE_SCAN=15
+NOISE_SCAN=10
 
 # Topup (deprecated)
-TOPUP_LR_RUN=24 # Typically the first B0 
-TOPUP_RL_RUN=25 # Typically the corresponding revB0 
+TOPUP_LR_RUN=19 # Typically the first B0 
+TOPUP_RL_RUN=20 # Typically the corresponding revB0 
 
 
 # Diffusion Data
-DIFF_SCANS=(19 23 17 18 20 21 22 24)
-DATA_RESCALING=0.001576    
+DIFF_SCANS=(14 30 12 13 15 16 17 19)
+DATA_RESCALING=0.001660 
 MASK_THRESHOLD=0.1
 DRIFT_CORRECTION=NO #YES/NO # NO is default
 HEAT_CORRECTION=YES #YES/NO # YES is now default for all brain
 
 
 # FLASH Scans
-FLASH_FA_05=26
-FLASH_FA_12p5=27
-FLASH_FA_25=28
-FLASH_FA_50=29
-FLASH_FA_80=30
+FLASH_FA_05=21
+FLASH_FA_12p5=22
+FLASH_FA_25=23
+FLASH_FA_50=24
+FLASH_FA_80=25
 FLASH_HIGHRES=31
-FLASH_ULTRA_HIGHRES=32
+FLASH_ULTRA_HIGHRES=
 
 ####################################
 
@@ -51,8 +51,8 @@ FLAG_FLASH_CORR=YES #YES/NO # YES is still default for all brain even post "patc
 
 
 # Use nonlinear registration to correct for non EPI traj adjusted reversed PE scans
-FLAG_TOPUP_RETRO_RECON=NO #YES/NO
-RETRO_RECON_NUMBER=
+FLAG_TOPUP_RETRO_RECON=YES #YES/NO
+RETRO_RECON_NUMBER=3
 
 ######
 # BASIC PARAMETERS, TYPICALLY SHOULD NOT CHANGE
@@ -134,6 +134,7 @@ FLASH_DIR_WARP="${FLASH_DIR}/Reg_to_EPI/"
 
 JUNA_T1_TEMPLATE=/data/pt_02101_dMRI/external_data/Juna_Template/Juna.Chimp_05mm/Juna_Chimp_T1_05mm_skull_stripped.nii.gz
 JUNA_TMP_TEMPLATE=/data/pt_02101_dMRI/external_data/Juna_Template/Juna.Chimp_05mm/Juna_Chimp_TPM_05mm.nii.gz
+JUNA_PAD_SUBCORTICAL_TEMPLATE=/data/pt_02101_dMRI/external_data/Juna_Template/Juna.Chimp_05mm/negra_subcortical/labels_juna_pad.nii.gz
 JUNA_PAD=40
 
 ########################

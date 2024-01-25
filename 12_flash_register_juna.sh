@@ -235,6 +235,10 @@ echo "mrview -load ${FIXED3} -interpolation 0 -mode 2 -overlay.load ${JUNA_DIR}/
 
 
 
+# ${JUNA_PAD_SUBCORTICAL_TEMPLATE}
+
+
+
 # VENTRICUE AND NON-VENTRICULE CSF here
 
 
