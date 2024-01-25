@@ -251,7 +251,7 @@ echo "mrview -load ${FLASH_DIR_WARP}/data_flash.nii.gz -interpolation 0 -load ${
 
 echo "Creating mask for Ernst Angle FLASH data "
 # Get initial mask threshold from average image intensity
-MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats $current_iter_flash -m)
+MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats ${FLASH_DIR_WARP}/data_flash_N4_${N$_ITER}x.nii.gz -m)
 #
 MASKING_DONE=0
 while [ $MASKING_DONE == 0 ]; do
@@ -343,7 +343,7 @@ done
 
 
 
-bet2 $current_iter_flash \
+bet2 ${FLASH_DIR_WARP}/data_flash_N4_${N$_ITER}x.nii.gz \
      ${FLASH_DIR_WARP}/flash_bet \
      -m \
      -n \
