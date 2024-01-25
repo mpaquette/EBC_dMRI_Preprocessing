@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo 'Running dMRI processing, make sure to have ANTS running (for N4), next to otherwise active environments'
+echo 'Running dMRI processing'
 
 # Load Local Variables
 source ./SET_VARIABLES.sh

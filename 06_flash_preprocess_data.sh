@@ -358,7 +358,7 @@ bet2 ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz \
 
 
 
-# add threshold mask and BET mask ofr final FLASH mask
+# add threshold mask and BET mask for final FLASH mask
 fslmaths      ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz \
          -add ${FLASH_DIR_WARP}/flash_bet_mask.nii.gz \
          -bin \

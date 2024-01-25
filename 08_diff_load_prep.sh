@@ -177,7 +177,7 @@ ${FSL_LOCAL}/fslmaths \
 
 
 # Multiple rounds of N4 for FLASH to EPI affine reg
-echo 'Runing Repeated N4 on EPI b0 Data'
+echo 'Running Repeated N4 on EPI b0 Data'
 for i in $(seq 1 $N4_ITER)
 do 
         current_iter_epi=${DIFF_DATA_DIR}/data_b0s_mc_mean_N4_${i}x.nii.gz
@@ -265,7 +265,7 @@ ${FSL_LOCAL}/fslmaths \
 
 
 # run N4 on mean b0 vcorr filtered
-echo 'Runing Repeated N4 on EPI b0 vcorr Data'
+echo 'Running Repeated N4 on EPI b0 vcorr Data'
 for i in $(seq 1 $N4_ITER)
 do 
 
@@ -384,8 +384,8 @@ while [ $MASKING_DONE == 0 ]; do
         THRS_STR_OLD="MASK_THRESHOLD_FLASH=$THRS_OLD"
         THRS_STR_NEW="MASK_THRESHOLD_FLASH=$MASK_THRESHOLD_FLASH"
     fi
-
 done
+
 # crop Final mask with the vcorr mask 
 fslmaths      ${DIFF_DATA_DIR}/mask_tmp_connect_dil.nii.gz \
          -mul ${DIFF_DATA_DIR}/mask_flash_warped_dil.nii.gz \
