@@ -241,7 +241,7 @@ done
 
 
 echo -e "\necho \"Check FLASH vs FLASH N4 ${N4_ITER}x.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_WARP}/data_flash.nii.gz -interpolation 0 -load ${current_iter_flash} -interpolation 0" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_WARP}/data_flash.nii.gz -interpolation 0 -load ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz -interpolation 0" >> $THISLOG
 
 
 
@@ -251,14 +251,14 @@ echo "mrview -load ${FLASH_DIR_WARP}/data_flash.nii.gz -interpolation 0 -load ${
 
 echo "Creating mask for Ernst Angle FLASH data "
 # Get initial mask threshold from average image intensity
-MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats ${FLASH_DIR_WARP}/data_flash_N4_${N$_ITER}x.nii.gz -m)
+MASK_THRESHOLD_FLASH=$(${FSL_LOCAL}/fslstats ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz -m)
 #
 MASKING_DONE=0
 while [ $MASKING_DONE == 0 ]; do
 
     # Generate mask by median filtering and thresholding (FSL maths)
     ${FSL_LOCAL}/fslmaths \
-            $current_iter_flash \
+            ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz \
             -kernel 3D \
             -fmedian \
             -thr ${MASK_THRESHOLD_FLASH} \
@@ -282,7 +282,7 @@ while [ $MASKING_DONE == 0 ]; do
 
     # Check the results
     mrview \
-            -load $current_iter_flash \
+            -load ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz \
             -interpolation 0  \
             -mode 2 \
             -overlay.load ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz \
@@ -314,7 +314,7 @@ while [ $MASKING_DONE == 0 ]; do
         # Find THRESHOLD VALUE in a histogram
         echo 'Adapt MASK_THRESHOLD Variable in SET_VARIABLES.sh to exclude noise peak in histogram'
         python3 ${SCRIPTS}/quickviz.py \
-                --his $current_iter_flash \
+                --his ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz \
                 --loghis \
                 --hisvert ${MASK_THRESHOLD_FLASH}
 
@@ -340,6 +340,11 @@ while [ $MASKING_DONE == 0 ]; do
     fi
 
 done
+
+
+
+
+
 
 
 
@@ -371,7 +376,7 @@ rm -f ${FLASH_DIR_WARP}/flash_bet_mask.nii.gz
 
 
 echo -e "\necho \"Check FLASH mask.\"" >> $THISLOG
-echo "mrview -load ${current_iter_flash} -interpolation 0 -mode 2 -overlay.load ${FLASH_DIR_WARP}/mask_flash.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2 -overlay.load ${FLASH_DIR_WARP}/mask_flash.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3" >> $THISLOG
 
 
 
