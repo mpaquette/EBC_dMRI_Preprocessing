@@ -348,7 +348,7 @@ done
 
 
 
-bet2 ${FLASH_DIR_WARP}/data_flash_N4_${N$_ITER}x.nii.gz \
+bet2 ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz \
      ${FLASH_DIR_WARP}/flash_bet \
      -m \
      -n \
