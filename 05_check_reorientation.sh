@@ -54,16 +54,7 @@ ${FSL_LOCAL}/fslmaths ${REORIENT_DIR}/data_reshape_unscaled.nii.gz \
 ##################
 
 
-# Show reoriented data alongside with MNI brain
-# mrview \
-#     -load ${REORIENT_DIR}/data_reshape.nii.gz \
-#     -interpolation 0  \
-#     -mode 2 &
 
-# mrview \
-#     -load /data/pt_02101_dMRI/software/fsl6/data/standard/MNI152_T1_1mm_brain.nii.gz \
-#     -interpolation 0 \
-#     -mode 2 &
 
 echo -e "\necho \"Show reoriented data alongside with MNI brain.\"" >> $THISLOG
 echo "mrview -load ${REORIENT_DIR}/data_reshape.nii.gz -interpolation 0 -mode 2 &" >> $THISLOG

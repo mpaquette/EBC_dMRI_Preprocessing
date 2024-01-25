@@ -155,7 +155,7 @@ bet2 $current_iter_flash \
 #        -overlay.load ${UNWRAP_PROC_DIR}/flash_bet_mask.nii.gz -overlay.opacity 0.2 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 1 \
 #        -overlay.load ${UNWRAP_PROC_DIR}/mask_th_flash.nii.gz  -overlay.opacity 0.2 -overlay.colour 0,0,1 -overlay.interpolation 0 -overlay.threshold_min 1 \
 echo -e "\necho \"Check BET FLASH mask.\"" >> $THISLOG
-echo "mrview ${current_iter_flash} -interpolation 0 -overlay.load ${UNWRAP_PROC_DIR}/flash_bet_mask.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.intensity 1,1" >> $THISLOG
+echo "mrview ${current_iter_flash} -interpolation 0 -overlay.load ${UNWRAP_PROC_DIR}/flash_bet_mask.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.intensity 0,1" >> $THISLOG
 
 
 
@@ -169,7 +169,7 @@ fslmaths      ${UNWRAP_PROC_DIR}/mask_th_flash.nii.gz \
 
 maskfilter ${UNWRAP_PROC_DIR}/mask_flash.nii.gz \
            connect \
-           -largest \
+           -largest -force \
            ${UNWRAP_PROC_DIR}/mask_flash_largest.nii.gz
 
 
@@ -428,23 +428,18 @@ echo "mrview ${B0SCAN} -interpolation 0 ${MRVIEW_STRING_FOVMASK} ${MRVIEW_STRING
 
 
 
-
-
-
-
 # Noisemap
-# save FOV extent mask of EPI
 IM_IN=${NII_RAW_DIR}/*X${NOISE_SCAN}P1.nii.gz
 IM_OUT=${UNWRAP_DIR}/$(basename $IM_IN)
 python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
         --mask $FOV_MASK_DWI_PATHS \
         --maskover $FOV_OVERLAP_DWI_PATHS \
         --out $IM_OUT \
-        --outmask ${UNWRAP_DIR}/mask_FOV_extent_epi.nii.gz \
+        --outmask ${UNWRAP_DIR}/mask_FOV_extent_noise.nii.gz \
         --pad $(cat ${UNWRAP_PROC_DIR}/total_padding.txt)
 
-
 # loop over DIFF_SCANS
+# save FOV extent mask of EPI
 for t in ${DIFF_SCANS[@]}; do
     IM_IN=${NII_RAW_DIR}/*X${t}P1.nii.gz;
     IM_OUT=${UNWRAP_DIR}/$(basename $IM_IN);
@@ -452,17 +447,12 @@ for t in ${DIFF_SCANS[@]}; do
         --mask $FOV_MASK_DWI_PATHS \
         --maskover $FOV_OVERLAP_DWI_PATHS \
         --out $IM_OUT \
+        --outmask ${UNWRAP_DIR}/mask_FOV_extent_epi.nii.gz \
         --pad $(cat ${UNWRAP_PROC_DIR}/total_padding.txt)
 done
 
 
 
-# # viz
-# for t in ${DIFF_SCANS[@]}; do
-#     IM_IN=${NII_RAW_DIR}/*X${t}P1.nii.gz;
-#     IM_OUT=${UNWRAP_DIR}/$(basename $IM_IN);
-#     mrview $IM_IN $IM_OUT
-# done
 
 echo -e "\necho \"Check wrap vs unwrap for DWI.\"" >> $THISLOG
 for t in ${DIFF_SCANS[@]}; do
@@ -482,8 +472,7 @@ done
 
 IM_FIX=${NII_RAW_DIR}/*X${FLASH_HIGHRES}P1.nii.gz
 IM_MOV=$current_iter_flash
-#
-# mrview $IM_FIX $IM_MOV
+
 
 # # dof=6 FLASH to HIGHRES reg
 flirt -in $IM_MOV \
@@ -493,7 +482,6 @@ flirt -in $IM_MOV \
       -out ${UNWRAP_PROC_DIR}/data_flash_warped_to_hr.nii.gz \
       -v
 
-# mrview $IM_FIX ${UNWRAP_PROC_DIR}/data_flash_warped_to_hr.nii.gz
 echo -e "\necho \"Check Flash HIGHRES registration.\"" >> $THISLOG
 echo "mrview -load ${IM_FIX} -interpolation 0 -load ${IM_MOV} -interpolation 0 -load ${UNWRAP_PROC_DIR}/data_flash_warped_to_hr.nii.gz -interpolation 0" >> $THISLOG
 
@@ -575,7 +563,7 @@ for t in ${FOVARRHR[@]}; do
     python3 ${SCRIPTS}/fix_hires_fovmask.py \
             $t \
             $t \
-            1
+            3
 done
 
 
@@ -620,7 +608,6 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
 
 
 
-# mrview ${NII_RAW_DIR}/*X${FLASH_HIGHRES}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_HIGHRES}P1.nii.gz
 echo -e "\necho \"Check wrap vs unwrap for HIGHRES.\"" >> $THISLOG
 echo "mrview -load ${IM_IN} -interpolation 0 -load ${IM_OUT} -interpolation 0" >> $THISLOG
 
@@ -643,7 +630,6 @@ echo "mrview -load ${IM_IN} -interpolation 0 -load ${IM_OUT} -interpolation 0" >
 IM_FIX=${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
 IM_MOV=$current_iter_flash
 #
-# mrview $IM_FIX $IM_MOV
 
 # # dof=6 FLASH to HIGHRES reg
 flirt -in $IM_MOV \
@@ -734,7 +720,7 @@ for t in ${FOVARRUHR[@]}; do
     python3 ${SCRIPTS}/fix_hires_fovmask.py \
             $t \
             $t \
-            2
+            6
 done
 
 
@@ -758,7 +744,6 @@ for t in ${OVERARRUHR[@]}; do
   MRVIEW_STRING_FOVMASK+='-overlay.load '$t' -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1 '
 done
 
-# mrview $UHRSCAN -interpolation 0 $MRVIEW_STRING_FOVMASK $MRVIEW_STRING_OVERMASK
 echo -e "\necho \"Check registered FOV masks for ULTRAHIGHRES.\"" >> $THISLOG
 echo "mrview ${UHRSCAN} -interpolation 0 ${MRVIEW_STRING_FOVMASK} ${MRVIEW_STRING_OVERMASK}" >> $THISLOG
 
@@ -786,7 +771,6 @@ python3 ${SCRIPTS}/data_FOV_patch.py --data $IM_IN \
 
 
 
-# mrview ${NII_RAW_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz   ${UNWRAP_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz
 echo -e "\necho \"Check wrap vs unwrap for ULTRAHIGHRES.\"" >> $THISLOG
 echo "mrview -load ${IM_IN} -interpolation 0 -load ${IM_OUT} -interpolation 0" >> $THISLOG
 

@@ -3,47 +3,46 @@
 # This file needs to be copied in the preprocessing folder of each respective subject. Potential changes in processing should be made in this folder.
 
 # Folder of Bruker Data in Bruker Format
-BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/053_C_C_JOHNNY/raw/20230418_183125_053_C_C_JOHNNY_1_2/
+BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/007_C_C_NEGRA/raw/20210203_160848_007_C_C_NEGRA_ID11357_1_1_rr/20210203_160848_007_C_C_NEGRA_ID11357_1_1/
 
 #########################################
 # Select Scans for Processing
 
 # Reorientation Check
-CHECK_REORIENT_SCAN=26 # Typically the first B0 
+CHECK_REORIENT_SCAN=19 # Typically the first B0 
 
 # Noisemap
-NOISE_SCAN=14
+NOISE_SCAN=15
 
 # Topup (deprecated)
-TOPUP_LR_RUN=26 # Typically the first B0 
-TOPUP_RL_RUN=8 # Typically the corresponding revB0 
+TOPUP_LR_RUN=24 # Typically the first B0 
+TOPUP_RL_RUN=25 # Typically the corresponding revB0 
 
 
 # Diffusion Data
-DIFF_SCANS=(26 16 18 17 23 19 20 21 22)
-DATA_RESCALING=0.000683   
+DIFF_SCANS=(19 23 17 18 20 21 22 24)
+DATA_RESCALING=0.001576    
 MASK_THRESHOLD=0.1
+DRIFT_CORRECTION=NO #YES/NO # NO is default
 HEAT_CORRECTION=YES #YES/NO # YES is now default for all brain
 
 
 # FLASH Scans
-FLASH_FA_05=4
-FLASH_FA_12p5=25
-FLASH_FA_25=10
-FLASH_FA_50=6
-FLASH_FA_80=7
-FLASH_HIGHRES=29
+FLASH_FA_05=26
+FLASH_FA_12p5=27
+FLASH_FA_25=28
+FLASH_FA_50=29
+FLASH_FA_80=30
+FLASH_HIGHRES=31
 FLASH_ULTRA_HIGHRES=32
 
 ####################################
 
 # FOV wraping mask paths
 
-FOV_MASK_PATHS='/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_1_mod.nii.gz '\ 
+FOV_MASK_PATHS=' '
 
-FOV_OVERLAP_PATHS='/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_overlap_1.nii.gz '\
-'/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_overlap_2.nii.gz '\
-'/data/pt_02101_dMRI/misc/FOV_wrap/053_C_C_JOHNNY_FOV_wrap_overlap_3.nii.gz '\
+FOV_OVERLAP_PATHS=' '
 
 
 # Flag including an additional one-step nonlinear registration to correct for slight distortions between FLASH and EPI scans
@@ -68,7 +67,6 @@ ULTRA_HIGHRES=0.15
 
 
 # Eddy Parameters
-N_DIRECTION="58"
 TE="0.1"
 PE_DIRECTION="1"
 
@@ -87,7 +85,7 @@ LOCAL_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
 # Check the number of available cores for parallel processing
-N_CORES=5
+N_CORES=48
 
 
 # How often should N4 homogenize the data
@@ -119,6 +117,7 @@ TOPUP_DIR="${DIFF_DIR}/topup/"
 TISSUE_SEGMENTATION_DIR="${DIFF_DIR}/segmentation/"
 ODF_DIR="${DIFF_DIR}/odf/"
 JUNA_DIR="${DIFF_DIR}/juna_registration/"
+JUNAROT_DIR="${DIFF_DIR}/juna_registration/junarot_space/"
 QA_DIR="${DIFF_DIR}/quality_metrics/"
 
 # FLASH Data Folder Variables

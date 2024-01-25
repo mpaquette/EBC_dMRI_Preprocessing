@@ -125,17 +125,7 @@ mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_reshape.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/
 
 
 
-# # Show reoriented data alongside with MNI brain
-# mrview \
-#     -load ${FLASH_DIR_FA25}/data.nii.gz \
-#     -interpolation 0  \
-#     -mode 2 &
 
-# mrview \
-#     -load /data/pt_02101_dMRI/software/fsl6/data/standard/MNI152_T1_1mm_brain.nii.gz \
-#     -interpolation 0 \
-#     -mode 2 &
-#
 echo -e "\necho \"Show reoriented data alongside with MNI brain.\"" >> $THISLOG
 echo "mrview -load ${FLASH_DIR_FA25}/data.nii.gz -interpolation 0 -mode 2 &" >> $THISLOG
 echo "mrview -load /data/pt_02101_dMRI/software/fsl6/data/standard/MNI152_T1_1mm_brain.nii.gz -interpolation 0 -mode 2" >> $THISLOG
@@ -143,11 +133,7 @@ echo "mrview -load /data/pt_02101_dMRI/software/fsl6/data/standard/MNI152_T1_1mm
 
 
 
-# Compare distortions between FLASH and 3DEPI Acqusitions
-# fsleyes \
-#     ${FLASH_DIR_FA25}/data.nii.gz \
-#     ${REORIENT_DIR}/data_reshape.nii.gz &
-#
+
 echo -e "\necho \"Compare distortions between FLASH and 3DEPI Acqusitions.\"" >> $THISLOG
 echo "mrview -load ${FLASH_DIR_FA25}/data.nii.gz -interpolation 0 -mode 2 -load ${REORIENT_DIR}/data_reshape.nii.gz -interpolation 0 -mode 2" >> $THISLOG
 
@@ -183,6 +169,27 @@ ${MRDEGIBBS3D} -force \
     ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz \
     ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz \
     -nthreads ${N_CORES}
+
+
+# clip zeros
+mrcalc ${FLASH_DIR_FA05}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA12p5}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_FA25}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_FA50}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_FA80}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz
+
+mv -f ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA05}/data_degibbs.nii.gz
+mv -f ${FLASH_DIR_FA12p5}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz
+mv -f ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA25}/data_degibbs.nii.gz
+mv -f ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA50}/data_degibbs.nii.gz
+mv -f ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA80}/data_degibbs.nii.gz
+mv -f ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz
+mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz
+
+
+
 
 
 
@@ -280,8 +287,8 @@ while [ $MASKING_DONE == 0 ]; do
             -mode 2 \
             -overlay.load ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz \
             -overlay.opacity 0.5 \
-            -overlay.interpolation 0 \
-            -overlay.colourmap 3 
+            -overlay.colourmap 3 \
+            -overlay.interpolation 0
 
     # Prompt user whether or not its good
     MASKING_ANSWER_ACCEPTED=0
@@ -343,8 +350,6 @@ bet2 $current_iter_flash \
      -f 0.5 \
      -r 60 
 
-# mrview -load ${current_iter_flash} -interpolation 0 -mode 2 -overlay.load ${FLASH_DIR_WARP}/flash_bet_mask.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3
-
 
 
 
@@ -352,8 +357,12 @@ bet2 $current_iter_flash \
 fslmaths      ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz \
          -add ${FLASH_DIR_WARP}/flash_bet_mask.nii.gz \
          -bin \
-              ${FLASH_DIR_WARP}/mask_flash.nii.gz
+              ${FLASH_DIR_WARP}/mask_flash_connect_dil_plus_bet.nii.gz
 
+maskfilter \
+        -force \
+        -largest \
+        ${FLASH_DIR_WARP}/mask_flash_connect_dil_plus_bet.nii.gz connect ${FLASH_DIR_WARP}/mask_flash.nii.gz
 
 
 rm -f ${FLASH_DIR_WARP}/mask_flash_*.nii.gz
@@ -365,6 +374,197 @@ echo -e "\necho \"Check FLASH mask.\"" >> $THISLOG
 echo "mrview -load ${current_iter_flash} -interpolation 0 -mode 2 -overlay.load ${FLASH_DIR_WARP}/mask_flash.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3" >> $THISLOG
 
 
+
+
+
+
+
+echo "Prepping for affine registration to Juna"
+TEMPLATE=${JUNA_T1_TEMPLATE}
+DATA=${FLASH_DIR_FA80}/data_degibbs.nii.gz
+MASK=${FLASH_DIR_WARP}/mask_flash.nii.gz
+WORKDIR=${JUNAROT_DIR}
+
+
+
+# temp names
+DATA_N4=${WORKDIR}/data_N4.nii.gz
+PAD=${JUNA_PAD}
+TEMPLATE_PAD=${WORKDIR}/juna_pad.nii.gz
+TEMPLATE_NEW_AFFINE=${WORKDIR}/juna_new_affine.nii.gz
+TEMPLATE_NEW_AFFINE_TRANS=${WORKDIR}/juna_new_affine_trans.nii.gz
+FLIRT_MAT_DOF6=${WORKDIR}/dof6.txt
+FLIRT_MAT_DOF9=${WORKDIR}/dof9.txt
+FLIRT_MAT_ROT=${WORKDIR}/rot.txt
+DATA_WARPED=${WORKDIR}/data_rotated.nii.gz
+FLIRT_MAT_ROT_FINAL=${WORKDIR}/junarot.txt
+
+# process data
+echo "N4_correct ${DATA}"
+N4BiasFieldCorrection -d 3 \
+        -i $DATA \
+        -x $MASK \
+        -o $DATA_N4
+
+
+mrgrid ${TEMPLATE} \
+       pad -uniform ${PAD} \
+       ${TEMPLATE_PAD}
+
+# create temporary template with the data's affine
+QFORM_PADDED_DATA=$(fslorient -getsform ${DATA})
+cp ${TEMPLATE_PAD} ${TEMPLATE_NEW_AFFINE}
+fslorient -setsform $QFORM_PADDED_DATA ${TEMPLATE_NEW_AFFINE}
+fslorient -copysform2qform ${TEMPLATE_NEW_AFFINE}
+
+# translate template by match center-of-mass
+echo "Align template"
+python3 ${SCRIPTS}/translate_COM.py \
+        --fixed $DATA_N4 \
+        --moving ${TEMPLATE_NEW_AFFINE} \
+        --output ${TEMPLATE_NEW_AFFINE_TRANS}
+
+
+echo -e "\necho \"Check Template vs Data before juna rotation.\"" >> $THISLOG
+echo "mrview -load ${DATA_N4} -interpolation 0 -mode 2 -load ${TEMPLATE_NEW_AFFINE_TRANS} -interpolation 0 -mode 2" >> $THISLOG
+
+
+
+
+
+
+# rigid registration to template
+echo "flirt rigid template"
+flirt -in $DATA_N4 \
+      -ref ${TEMPLATE_NEW_AFFINE_TRANS} \
+      -omat $FLIRT_MAT_DOF6 \
+      -dof 6 \
+      -v
+
+# rigid + scaling registration to template
+echo "flirt dof=9 template"
+flirt -in $DATA_N4 \
+      -ref ${TEMPLATE_NEW_AFFINE_TRANS} \
+      -omat $FLIRT_MAT_DOF9 \
+      -dof 9 \
+      -v
+
+# combine rotation from dof=9 without scaling and translation from dof=6
+echo "Creating inplace rotation ${FLIRT_MAT_ROT}"
+python3 ${SCRIPTS}/build_inplace_rot_mat.py \
+        --input9 $FLIRT_MAT_DOF9 \
+        --input6 $FLIRT_MAT_DOF6 \
+        --output $FLIRT_MAT_ROT
+
+# warp data to check
+flirt -in $DATA_N4 \
+      -ref ${TEMPLATE_NEW_AFFINE_TRANS} \
+      -init $FLIRT_MAT_ROT \
+      -out $DATA_WARPED \
+      -applyxfm \
+      # -v
+
+
+echo -e "\necho \"Check Template vs Data after juna rotation.\"" >> $THISLOG
+echo "mrview -load ${DATA_WARPED} -interpolation 0 -mode 2 -load ${TEMPLATE_NEW_AFFINE_TRANS} -interpolation 0 -mode 2" >> $THISLOG
+
+
+
+# Dilate flashmask
+fslmaths ${FLASH_DIR_WARP}/mask_flash.nii.gz \
+         -kernel sphere 2.0 \
+         -dilM \
+         ${WORKDIR}/mask_flash_dil_2mm.nii.gz \
+         -odt float
+
+# mrview ${FLASH_DIR_WARP}/mask_flash.nii.gz ${WORKDIR}/mask_flash_dil_2mm.nii.gz
+
+
+# Warp dilated flashmask to JUNAROT space
+flirt -in ${WORKDIR}/mask_flash_dil_2mm.nii.gz \
+      -ref ${TEMPLATE_NEW_AFFINE_TRANS} \
+      -init $FLIRT_MAT_ROT \
+      -out ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz \
+      -applyxfm \
+      -interp nearestneighbour
+      # -v
+
+
+echo -e "\necho \"Check mask in JUNAROT space for cropping.\"" >> $THISLOG
+echo "mrview -load ${DATA_WARPED} -interpolation 0 -mode 2 -overlay.load ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3" >> $THISLOG
+
+
+
+
+
+
+# Crop mask to obtain final JUNAROT space
+scil_crop_volume.py ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz \
+                    ${WORKDIR}/JUNAROT_space_ref.nii.gz \
+                    --output_bbox ${WORKDIR}/junarot_final_crop.pkl
+
+
+
+
+
+
+# # note: the y and z value for mrgrid are the low bb
+# # for x its img.shape[0] - max bb
+# mrgrid ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz \
+#        crop -axis 0 62,64 \
+#             -axis 1 35,45 \
+#             -axis 2  2,29 \
+#        ${WORKDIR}/mask_flash_dil_2mm_JUNAROT_crop_test.nii.gz
+
+python3 ${SCRIPTS}/offset_transform_with_bbox.py \
+        --mat $FLIRT_MAT_ROT \
+        --ref ${TEMPLATE_NEW_AFFINE_TRANS} \
+        --bbox ${WORKDIR}/junarot_final_crop.pkl \
+        --output $FLIRT_MAT_ROT_FINAL
+
+
+
+
+# echo -e "\necho \"Check Rigid to Juna.\"" >> $THISLOG
+# echo "mrview -load ${JUNA_DIR}/juna_template_pad.nii.gz -interpolation 0 -mode 2 -load ${JUNA_DIR}/flash_to_juna_dof_approx.nii.gz -interpolation 0 -mode 2" >> $THISLOG
+
+
+
+
+
+
+
+# Run repeated N4 over flash for later registration
+echo "Running multiple N4 over FLASH data"
+for TEMP_FOLDER in ${FLASH_DIR_FA05} ${FLASH_DIR_FA12p5} ${FLASH_DIR_FA25} ${FLASH_DIR_FA50} ${FLASH_DIR_FA80}; do
+    echo "Working on ${TEMP_FOLDER}"
+    cp ${TEMP_FOLDER}/data_degibbs.nii.gz ${TEMP_FOLDER}/data_degibbs_N4_0x.nii.gz
+    for i in $(seq 1 $N4_ITER)
+    do 
+        echo "N4BiasFieldCorrection ${i} out of ${N4_ITER}"
+        previous_iter_flash=${TEMP_FOLDER}/data_degibbs_N4_$( expr $i - 1 )x.nii.gz
+        current_iter_flash=${TEMP_FOLDER}/data_degibbs_N4_${i}x.nii.gz
+        #
+        N4BiasFieldCorrection -d 3 \
+                -i $previous_iter_flash \
+                -x ${FLASH_DIR_WARP}/mask_flash.nii.gz \
+                -o $current_iter_flash
+    done
+    rm -f ${TEMP_FOLDER}/data_degibbs_N4_0x.nii.gz
+done
+
+
+
+echo -e "\necho \"Check FLASH FA05 N4 0x vs ${N4_ITER}x.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA05}/data_degibbs.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA05}/data_degibbs_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2" >> $THISLOG
+echo -e "echo \"Check FLASH FA12p5 N4 0x vs ${N4_ITER}x.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA12p5}/data_degibbs_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2" >> $THISLOG
+echo -e "echo \"Check FLASH FA25 N4 0x vs ${N4_ITER}x.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA25}/data_degibbs.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA25}/data_degibbs_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2" >> $THISLOG
+echo -e "echo \"Check FLASH FA50 N4 0x vs ${N4_ITER}x.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA50}/data_degibbs.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA50}/data_degibbs_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2" >> $THISLOG
+echo -e "echo \"Check FLASH FA80 N4 0x vs ${N4_ITER}x.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA80}/data_degibbs.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA80}/data_degibbs_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2" >> $THISLOG
 
 
 

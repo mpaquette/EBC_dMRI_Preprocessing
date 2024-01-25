@@ -39,6 +39,9 @@ def buildArgsParser():
     p.add_argument('--time', dest='timestamp', action='store', type=str,
                             help='Timestamps Path')
 
+    p.add_argument('--image', dest='image', action='store', type=str, default='./',
+                            help='Output Path for correction png')
+
     p.add_argument('--out', dest='out', action='store', type=str,
                             help='Output Path')
 
@@ -55,11 +58,13 @@ def main():
     PATH_IN     = os.path.realpath(args.input)
     PATH_BVAL   = os.path.realpath(args.bval)
     PATH_TIME   = os.path.realpath(args.timestamp)
+    PATH_IMAGE  = os.path.realpath(args.image) 
     PATH_OUT    = os.path.realpath(args.out) 
 
     # Load Data
     print('Loading Data')
     data = nib.load(PATH_IN).get_fdata().astype(np.float32)
+    data = np.clip(data, 0, np.inf)
     aff = nib.load(PATH_IN).affine
     dims = data.shape
 
@@ -77,6 +82,7 @@ def main():
     print('Running Drift Correction')
 
     b0_idx = np.where(bvals < 100.0)[0]
+    nonb0 = bvals > 100.0
 
     print('b0 index: {}'.format(b0_idx))
 
@@ -94,26 +100,41 @@ def main():
     drift_scaling = ((timestamps*m_) / c_) + 1
     data_drift_corr = data[..., :] / drift_scaling
 
-    import pylab as pl 
+    data_corr_mean = data_drift_corr[mask].mean(axis=0)
+
+
+
+    # Save Data
+    print('Saving clipped Data')
+    nib.save(nib.Nifti1Image(np.clip(data_drift_corr, 0, np.inf), aff), PATH_OUT)
+
+
+
+
+    import pylab as pl
+    from matplotlib.collections import LineCollection 
     pl.figure()
-    pl.subplot(1,2,1)
+    pl.subplot(2,1,1)
     pl.plot(timestamps, m_*timestamps + c_)
     pl.scatter(x_, data_mean[b0_idx])
     pl.title('Fit on B0s')
-    pl.subplot(1,2,2)
+    pl.subplot(2,1,2)
     # pl.semilogy(timestamps, data_mean, label='before', alpha=0.5)
-    pl.scatter(timestamps, data_mean, label='before', alpha=0.5)
+    pl.scatter(timestamps[nonb0], data_mean[nonb0], label='before', alpha=0.5)
     # pl.semilogy(timestamps, data_drift_corr[mask].mean(axis=0), label='after', alpha=0.5)
-    pl.scatter(timestamps, data_drift_corr[mask].mean(axis=0), label='after', alpha=0.5)
+    pl.scatter(timestamps[nonb0], data_corr_mean[nonb0], label='after', alpha=0.5)
     pl.legend()
     pl.title('Drift correction on data')
     pl.gca().set_yscale('log')
+
+    # add connecting line for each point pair
+    lines = [[(timestamps[nonb0][i], data_mean[nonb0][i]), (timestamps[nonb0][i], data_corr_mean[nonb0][i])] for i in range(nonb0.sum())]
+    lc = LineCollection(lines, color='black', linestyle='dashed', alpha=0.5)
+    pl.gca().add_collection(lc)
+    pl.savefig(PATH_IMAGE, dpi=100)
     pl.show()
 
-    # Save Data
-    print('Saving Data')
 
-    nib.save(nib.Nifti1Image(np.clip(data_drift_corr, 0, np.inf), aff), PATH_OUT)
 
 
 if __name__ == '__main__':

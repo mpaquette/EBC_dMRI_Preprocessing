@@ -35,6 +35,7 @@ mkdir -p \
     ${TISSUE_SEGMENTATION_DIR} \
     ${ODF_DIR} \
     ${JUNA_DIR} \
+    ${JUNAROT_DIR} \
     ${QA_DIR}
 
 
