@@ -119,6 +119,7 @@ ODF_DIR="${DIFF_DIR}/odf/"
 JUNA_DIR="${DIFF_DIR}/juna_registration/"
 JUNAROT_DIR="${DIFF_DIR}/juna_registration/junarot_space/"
 QA_DIR="${DIFF_DIR}/quality_metrics/"
+REG_SCRIPTS_DIR="${LOCAL_DIR}/reg_scripts/"
 
 # FLASH Data Folder Variables
 FLASH_DIR="${LOCAL_DIR}/flash/"

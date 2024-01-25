@@ -36,7 +36,8 @@ mkdir -p \
     ${ODF_DIR} \
     ${JUNA_DIR} \
     ${JUNAROT_DIR} \
-    ${QA_DIR}
+    ${QA_DIR} \
+    ${REG_SCRIPTS_DIR}
 
 
 # Generate FLASH FOLDERS
