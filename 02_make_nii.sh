@@ -4,6 +4,10 @@
 # EBC pipeline: Generate raw Nifti images
 # inputs:
 # - Raw Bruker data
+#
+# Previous Steps:
+# - Setting $BRUKER_RAW_DIR in SET_VARIABLES.sh
+#
 
 
 # Load Local Variables

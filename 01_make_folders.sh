@@ -4,7 +4,8 @@
 # EBC pipeline: Setup folder structure
 # inputs:
 # 
-
+# Previous Steps:
+#
 
 # Load Local Variables
 source ./SET_VARIABLES.sh

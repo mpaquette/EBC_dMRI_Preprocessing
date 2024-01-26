@@ -1,5 +1,21 @@
 #!/bin/bash
 
+
+# EBC pipeline: Process the diffusion data (noise bias, denoising, degibbs, drift, temperature artefact, eddy)
+# inputs:
+#
+# Previous Steps:
+# - Setting $DRIFT_CORRECTION       in SET_VARIABLES.sh
+# - Setting $HEAT_CORRECTION        in SET_VARIABLES.sh
+# - Setting $FLAG_TOPUP_RETRO_RECON in SET_VARIABLES.sh
+# - Setting $RETRO_RECON_NUMBER     in SET_VARIABLES.sh
+# - Creating a ${CONFIG_DIR}/temp_corr_index.txt file 
+#     or using the commented code in HEAT_CORRECTION section
+#     using the info from mean intensity plot in 8.sh (which is in $DIFF_SCANS ordering)
+#     and the info from SCANDATE.txt
+#
+
+
 echo 'Running dMRI processing'
 
 # Load Local Variables
@@ -142,19 +158,23 @@ then
     # 2, 3, middle_b0, 4, 5, 6, 1_reheat, final_b0
     # data order is: 
     # middle_b0, 1_reheat, 2, 3, 4, 5, 6, final_b0
-    rm -f ${CONFIG_DIR}/temp_corr_index.txt 
-    >${CONFIG_DIR}/temp_corr_index.txt
-    echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt; # include middle_b0
-    for i in {1..10}; do # include 1_of_6_reheat 
-        echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt;
-    done
-    for i in {1..25}; do # exclude 2, 3, 4
-        echo '0' >> ${CONFIG_DIR}/temp_corr_index.txt;
-    done
-    for i in {1..20}; do # include 5, 6
-        echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt;
-    done
-    echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt; # include final_b0
+    #
+    #
+    # rm -f ${CONFIG_DIR}/temp_corr_index.txt 
+    # >${CONFIG_DIR}/temp_corr_index.txt
+    # echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt; # include middle_b0
+    # for i in {1..10}; do # include 1_of_6_reheat 
+    #     echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt;
+    # done
+    # for i in {1..25}; do # exclude 2, 3, 4
+    #     echo '0' >> ${CONFIG_DIR}/temp_corr_index.txt;
+    # done
+    # for i in {1..20}; do # include 5, 6
+    #     echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt;
+    # done
+    # echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt; # include final_b0
+    #
+    #
     #
     if test -f ${CONFIG_DIR}/temp_corr_index.txt; then
         echo "Using the following index for temperature correction"
@@ -205,68 +225,6 @@ else
 fi
 
 
-# if [[ ${HEAT_CORRECTION} == "YES" ]]
-# then
-#     echo 'Performing Heat Correction'
-#     python3 ${SCRIPTS}/signal_temp_equalizer.py \
-#     --last 40 \
-#     --mask ${DIFF_DATA_DIR}/mask.nii.gz \
-#     ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr.nii.gz \
-#     ${DIFF_DATA_DIR}/data.bval \
-#     ${DIFF_DATA_DIR}/data.bvec \
-#     ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend.nii.gz \
-#     ${DIFF_DATA_DIR}/computed_ks.nii.gz
-
-#     # The second volume of computed_ks.nii.gz can be a good estimator for a WM mask, extract this volume and run again
-#     ${FSL_LOCAL}/fslroi \
-#         ${DIFF_DATA_DIR}/computed_ks.nii.gz \
-#         ${DIFF_DATA_DIR}/computed_ks_vol1.nii.gz \
-#         1 1
-
-#     # Threshold the ks to identify the white matter
-#     ${FSL_LOCAL}/fslmaths \
-#         ${DIFF_DATA_DIR}/computed_ks_vol1.nii.gz \
-#         -uthr 0.8 \
-#         -bin \
-#         -kernel 3D -fillh26 \
-#         -kernel 3D -fillh26 \
-#         -kernel 3D -eroF \
-#         -mas ${DIFF_DATA_DIR}/mask.nii.gz \
-#         ${DIFF_DATA_DIR}/wm_mask.nii.gz
-
-#     mrview  -mode 2 \
-#     -load ${DIFF_DATA_DIR}/computed_ks_vol1.nii.gz \
-#     -interpolation 0 \
-#     -overlay.load ${DIFF_DATA_DIR}/wm_mask.nii.gz \
-#     -overlay.interpolation 0 &
-
-
-#     # Extract the largest connected volume in generated mask
-#     maskfilter -f -largest ${DIFF_DATA_DIR}/wm_mask.nii.gz connect ${DIFF_DATA_DIR}/wm_mask_connect.nii.gz
-
-#     # Dilate the mask 
-#     maskfilter -f -npass 2 ${DIFF_DATA_DIR}/wm_mask_connect.nii.gz dilate ${DIFF_DATA_DIR}/wm_mask_connect_dil.nii.gz
-
-#     mv -f ${DIFF_DATA_DIR}/wm_mask_connect_dil.nii.gz ${DIFF_DATA_DIR}/wm_mask.nii.gz
-#     rm -f ${DIFF_DATA_DIR}/wm_mask_*
-
-#     python3 ${SCRIPTS}/signal_temp_equalizer.py \
-#         --last 40 \
-#         --mask ${DIFF_DATA_DIR}/wm_mask.nii.gz \
-#         ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr.nii.gz \
-#         ${DIFF_DATA_DIR}/data.bval \
-#         ${DIFF_DATA_DIR}/data.bvec \
-#         ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend.nii.gz \
-#         ${DIFF_DATA_DIR}/computed_ks.nii.gz
-
-# else
-#     echo 'Skiping Heat Correction'
-#     cp -f ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr.nii.gz ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend.nii.gz
-# fi
-
-#
-##################
-
 
 
 ####################################
@@ -308,7 +266,7 @@ N4BiasFieldCorrection \
     -v
 
 # apply biasfield to all
-# note, this biasfeild as a constant factor to it
+# note, this biasfield as a constant factor to it
 # since this is only for EDDY, it doesnt matter
 # but if using N4 elsewhere, beware to adjust noise estimation
 mrcalc ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend.nii.gz \
@@ -489,6 +447,7 @@ ${FSL_LOCAL}/dtifit -k ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_de
 mv ${DTI_DIR}/dti_FA.nii.gz ${DTI_DIR}/dti_FA_raw.nii.gz
 mrcalc ${DTI_DIR}/dti_FA_raw.nii.gz 0 -max 1 -min ${DTI_DIR}/dti_FA.nii.gz
 mrcalc ${DTI_DIR}/dti_FA.nii.gz ${DTI_DIR}/dti_V1.nii.gz -mult ${DTI_DIR}/dti_cFA.nii.gz
+rm -f ${DTI_DIR}/dti_FA_raw.nii.gz
 
 # Calculate Radial Diffusivity
 mv ${DTI_DIR}/dti_L2.nii.gz ${DTI_DIR}/dti_L2_raw.nii.gz
@@ -496,10 +455,12 @@ mrcalc ${DTI_DIR}/dti_L2_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_L2.nii.gz
 mv ${DTI_DIR}/dti_L3.nii.gz ${DTI_DIR}/dti_L3_raw.nii.gz
 mrcalc ${DTI_DIR}/dti_L3_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_L3.nii.gz
 mrcalc ${DTI_DIR}/dti_L2.nii.gz ${DTI_DIR}/dti_L3.nii.gz -add 0.5 -mult ${DTI_DIR}/dti_RD.nii.gz
+rm -f ${DTI_DIR}/dti_L2_raw.nii.gz
+rm -f ${DTI_DIR}/dti_L3_raw.nii.gz
 
 mv ${DTI_DIR}/dti_MD.nii.gz ${DTI_DIR}/dti_MD_raw.nii.gz
 mrcalc ${DTI_DIR}/dti_MD_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_MD.nii.gz
-
+rm -f ${DTI_DIR}/dti_MD_raw.nii.gz
 
 
 echo -e "\necho \"Check Curated DTI fit (MD, RD, FA, color-FA).\"" >> $THISLOG
@@ -557,29 +518,35 @@ python3 ${SCRIPTS}/normalize_data.py \
 cp ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm.nii.gz ${NOISEMAP_DIR}/sigma_norm.nii.gz
 
 
+if [[ ${HEAT_CORRECTION} == "YES" ]]
+then
 
-flirt -in ${DIFF_DATA_DIR}/computed_temp_signal_mult.nii.gz \
-      -ref ${TEMPLATE_JUNAROT} \
-      -init ${JUNAROT_MAT} \
-      -out ${DIFF_DATA_DIR}/computed_temp_signal_mult_junarot.nii.gz \
-      -applyxfm \
-      -interp trilinear
-      # -v
+    flirt -in ${DIFF_DATA_DIR}/computed_temp_signal_mult.nii.gz \
+          -ref ${TEMPLATE_JUNAROT} \
+          -init ${JUNAROT_MAT} \
+          -out ${DIFF_DATA_DIR}/computed_temp_signal_mult_junarot.nii.gz \
+          -applyxfm \
+          -interp trilinear
+          # -v
+
+    mrcalc ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm.nii.gz \
+           ${DIFF_DATA_DIR}/computed_temp_signal_mult_junarot.nii.gz \
+           -mult \
+           ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz
+
+    cp ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz ${NOISEMAP_DIR}/sigma_norm_heatcorr.nii.gz
+
+    DATANORMDIM=($(mrinfo ${DIFF_DATA_NORM_RELEASE_DIR}/data_norm.nii.gz -size))
+    # for the NORM release sigmas 4D maps, we crop the last b0
+    fslroi ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz \
+           ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_4d.nii.gz \
+           0 "${DATANORMDIM[3]}"
+    rm -f ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz
+
+fi
 
 
-mrcalc ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm.nii.gz \
-       ${DIFF_DATA_DIR}/computed_temp_signal_mult_junarot.nii.gz \
-       -mult \
-       ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz
 
-cp ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz ${NOISEMAP_DIR}/sigma_norm_heatcorr.nii.gz
-
-DATANORMDIM=($(mrinfo ${DIFF_DATA_NORM_RELEASE_DIR}/data_norm.nii.gz -size))
-# for the NORM release sigmas 4D maps, we crop the last b0
-fslroi ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz \
-       ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_4d.nii.gz \
-       0 "${DATANORMDIM[3]}"
-rm -f ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz
 
 
 echo -e "\necho \"Check Sigma with voxelwise heat correction.\"" >> $THISLOG

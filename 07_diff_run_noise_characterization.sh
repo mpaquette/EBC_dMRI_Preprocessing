@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# EBC pipeline: Comupute Noise properties from noisemap
+# inputs:
+#
+# Previous Steps:
+#
+
 # Load Local Variables
 source ./SET_VARIABLES.sh
 

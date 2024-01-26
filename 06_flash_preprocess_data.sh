@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+# EBC pipeline: Process Flash image (degibbs, N4) and compute JUNAROT space
+# inputs:
+#
+# Previous Steps:
+#
+
+
 # Load Local Variables
 source ./SET_VARIABLES.sh
 
@@ -25,11 +33,7 @@ cp ${UNWRAP_DIR}/*X${FLASH_FA_50}P1.nii.gz ${FLASH_DIR_FA50}/data.nii.gz
 #FA 80 deg
 cp ${UNWRAP_DIR}/*X${FLASH_FA_80}P1.nii.gz ${FLASH_DIR_FA80}/data.nii.gz
 
-#Highres
-cp ${UNWRAP_DIR}/*X${FLASH_HIGHRES}P1.nii.gz ${FLASH_DIR_HIGHRES}/data.nii.gz
 
-#Ultra Highres
-cp ${UNWRAP_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz
 
 
 # Reshape image matrix to resemble MNI space
@@ -82,43 +86,14 @@ cp ${FLASH_DIR_FA05}/mask_FOV_extent.nii.gz ${FLASH_DIR_FA50}/mask_FOV_extent.ni
 cp ${FLASH_DIR_FA05}/mask_FOV_extent.nii.gz ${FLASH_DIR_FA80}/mask_FOV_extent.nii.gz
 
 
-python3 ${SCRIPTS}/reshape_volume.py \
-    --in ${FLASH_DIR_HIGHRES}/data.nii.gz \
-    --out ${FLASH_DIR_HIGHRES}/data_reshape.nii.gz \
-    --ord ${RESHAPE_ARRAY_ORD} \
-    --inv ${RESHAPE_ARRAY_INV} \
-    --res ${HIGHRES}
-#
-python3 ${SCRIPTS}/reshape_volume.py \
-    --in ${UNWRAP_DIR}/mask_FOV_extent_HR.nii.gz \
-    --out ${FLASH_DIR_HIGHRES}/mask_FOV_extent.nii.gz \
-    --ord ${RESHAPE_ARRAY_ORD} \
-    --inv ${RESHAPE_ARRAY_INV} \
-    --res ${HIGHRES}
-
-python3 ${SCRIPTS}/reshape_volume.py \
-    --in ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz \
-    --out ${FLASH_DIR_ULTRA_HIGHRES}/data_reshape.nii.gz \
-    --ord ${RESHAPE_ARRAY_ORD} \
-    --inv ${RESHAPE_ARRAY_INV} \
-    --res ${ULTRA_HIGHRES}
-#
-python3 ${SCRIPTS}/reshape_volume.py \
-    --in ${UNWRAP_DIR}/mask_FOV_extent_UHR.nii.gz \
-    --out ${FLASH_DIR_ULTRA_HIGHRES}/mask_FOV_extent.nii.gz \
-    --ord ${RESHAPE_ARRAY_ORD} \
-    --inv ${RESHAPE_ARRAY_INV} \
-    --res ${ULTRA_HIGHRES}
-
-
 
 mv -f ${FLASH_DIR_FA05}/data_reshape.nii.gz ${FLASH_DIR_FA05}/data.nii.gz
 mv -f ${FLASH_DIR_FA12p5}/data_reshape.nii.gz ${FLASH_DIR_FA12p5}/data.nii.gz
 mv -f ${FLASH_DIR_FA25}/data_reshape.nii.gz ${FLASH_DIR_FA25}/data.nii.gz
 mv -f ${FLASH_DIR_FA50}/data_reshape.nii.gz ${FLASH_DIR_FA50}/data.nii.gz
 mv -f ${FLASH_DIR_FA80}/data_reshape.nii.gz ${FLASH_DIR_FA80}/data.nii.gz
-mv -f ${FLASH_DIR_HIGHRES}/data_reshape.nii.gz ${FLASH_DIR_HIGHRES}/data.nii.gz
-mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_reshape.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz
+
+
 
 
 
@@ -161,14 +136,8 @@ ${MRDEGIBBS3D} -force \
     ${FLASH_DIR_FA80}/data.nii.gz \
     ${FLASH_DIR_FA80}/data_degibbs.nii.gz \
     -nthreads ${N_CORES}
-${MRDEGIBBS3D} -force \
-    ${FLASH_DIR_HIGHRES}/data.nii.gz \
-    ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz \
-    -nthreads ${N_CORES}
-${MRDEGIBBS3D} -force \
-    ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz \
-    ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz \
-    -nthreads ${N_CORES}
+
+
 
 
 # clip zeros
@@ -177,16 +146,86 @@ mrcalc ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA12p5}/data_d
 mrcalc ${FLASH_DIR_FA25}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz
 mrcalc ${FLASH_DIR_FA50}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz
 mrcalc ${FLASH_DIR_FA80}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz
+
 
 mv -f ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA05}/data_degibbs.nii.gz
 mv -f ${FLASH_DIR_FA12p5}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz
 mv -f ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA25}/data_degibbs.nii.gz
 mv -f ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA50}/data_degibbs.nii.gz
 mv -f ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA80}/data_degibbs.nii.gz
-mv -f ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz
-mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz
+
+
+
+
+
+if [ -n "$FLASH_HIGHRES" ]; then
+  # echo "Processing Flash Highres"
+    #Highres
+    cp ${UNWRAP_DIR}/*X${FLASH_HIGHRES}P1.nii.gz ${FLASH_DIR_HIGHRES}/data.nii.gz
+    #
+    python3 ${SCRIPTS}/reshape_volume.py \
+        --in ${FLASH_DIR_HIGHRES}/data.nii.gz \
+        --out ${FLASH_DIR_HIGHRES}/data_reshape.nii.gz \
+        --ord ${RESHAPE_ARRAY_ORD} \
+        --inv ${RESHAPE_ARRAY_INV} \
+        --res ${HIGHRES}
+    #
+    python3 ${SCRIPTS}/reshape_volume.py \
+        --in ${UNWRAP_DIR}/mask_FOV_extent_HR.nii.gz \
+        --out ${FLASH_DIR_HIGHRES}/mask_FOV_extent.nii.gz \
+        --ord ${RESHAPE_ARRAY_ORD} \
+        --inv ${RESHAPE_ARRAY_INV} \
+        --res ${HIGHRES}
+    #
+    mv -f ${FLASH_DIR_HIGHRES}/data_reshape.nii.gz ${FLASH_DIR_HIGHRES}/data.nii.gz
+    #
+    ${MRDEGIBBS3D} -force \
+        ${FLASH_DIR_HIGHRES}/data.nii.gz \
+        ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz \
+        -nthreads ${N_CORES}
+    #
+    mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz
+    mv -f ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz
+else
+  echo "No Flash Highres specified, skipping"
+
+fi
+
+
+
+if [ -n "$FLASH_ULTRA_HIGHRES" ]; then
+  # echo "Processing Flash Ultra Highres"
+    #Ultra Highres
+    cp ${UNWRAP_DIR}/*X${FLASH_ULTRA_HIGHRES}P1.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz
+    #
+    python3 ${SCRIPTS}/reshape_volume.py \
+        --in ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz \
+        --out ${FLASH_DIR_ULTRA_HIGHRES}/data_reshape.nii.gz \
+        --ord ${RESHAPE_ARRAY_ORD} \
+        --inv ${RESHAPE_ARRAY_INV} \
+        --res ${ULTRA_HIGHRES}
+    #
+    python3 ${SCRIPTS}/reshape_volume.py \
+        --in ${UNWRAP_DIR}/mask_FOV_extent_UHR.nii.gz \
+        --out ${FLASH_DIR_ULTRA_HIGHRES}/mask_FOV_extent.nii.gz \
+        --ord ${RESHAPE_ARRAY_ORD} \
+        --inv ${RESHAPE_ARRAY_INV} \
+        --res ${ULTRA_HIGHRES}
+    #
+    mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_reshape.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz
+
+    #
+    ${MRDEGIBBS3D} -force \
+        ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz \
+        ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz \
+        -nthreads ${N_CORES}
+    #
+    mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz
+    mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz
+else
+  echo "No Flash Ultra Highres specified, skipping"
+
+fi
 
 
 

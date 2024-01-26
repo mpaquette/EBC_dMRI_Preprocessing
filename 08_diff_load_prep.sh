@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# EBC pipeline: Prep the diffusion data for processing (concat, masking, mean intensity plot)
+# inputs:
+#
+# Previous Steps:
+#
+
 # Load Local Variables
 source ./SET_VARIABLES.sh
 

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+# EBC pipeline: Swap data axis to MNI-like and scale data to avoid precision issue in the pipeline
+# inputs:
+#
+# Previous Steps:
+#
+
+
 # Load Local Variables
 source ./SET_VARIABLES.sh
 

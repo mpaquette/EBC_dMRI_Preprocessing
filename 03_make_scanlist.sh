@@ -1,10 +1,12 @@
 #!/bin/bash
 
 
-# EBC pipeline: Generate list of scan names
+# EBC pipeline: Generate list of scan names / scan times
 # inputs:
 # - acqp files from raw Bruker data
-
+# 
+# Previous Steps:
+#
 
 # Load Local Variables
 source ./SET_VARIABLES.sh

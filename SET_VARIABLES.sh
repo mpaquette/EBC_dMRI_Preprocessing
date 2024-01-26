@@ -143,6 +143,7 @@ SCRIPTS=${LOCAL_DIR}/scripts/
 SOFTWARE=/data/pt_02101_dMRI/software/
 FSL_LOCAL=${SOFTWARE}/fsl6/bin/
 MRDEGIBBS3D=${SOFTWARE}/mrtrix3/mrdegibbs3D/bin/deGibbs3D
+C3D_TOOL=/data/hu_paquette/tools/c3d-1.0.0-Linux-x86_64/bin/./c3d_affine_tool
 
 CONFIG_DIR=${LOCAL_DIR}/config/
 EDDY_PATH=/data/pt_02101_dMRI/software/fsl6/eddy_cuda10.2
