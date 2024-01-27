@@ -90,9 +90,9 @@ fslroi ${JUNA_TMP_TEMPLATE} ${JUNA_DIR}/Juna_GM.nii.gz 0 1
 fslroi ${JUNA_TMP_TEMPLATE} ${JUNA_DIR}/Juna_WM.nii.gz 1 1
 fslroi ${JUNA_TMP_TEMPLATE} ${JUNA_DIR}/Juna_CSF.nii.gz 2 1
 
-mrgrid ${JUNA_DIR}/Juna_GM.nii.gz  pad -uniform ${JUNA_PAD} ${JUNA_DIR}/Juna_GM_pad.nii.gz
-mrgrid ${JUNA_DIR}/Juna_WM.nii.gz  pad -uniform ${JUNA_PAD} ${JUNA_DIR}/Juna_WM_pad.nii.gz
-mrgrid ${JUNA_DIR}/Juna_CSF.nii.gz pad -uniform ${JUNA_PAD} ${JUNA_DIR}/Juna_CSF_pad.nii.gz
+mrgrid ${JUNA_DIR}/Juna_GM.nii.gz  pad -uniform ${JUNA_PAD} ${JUNA_DIR}/Juna_GM_pad.nii.gz -force
+mrgrid ${JUNA_DIR}/Juna_WM.nii.gz  pad -uniform ${JUNA_PAD} ${JUNA_DIR}/Juna_WM_pad.nii.gz -force
+mrgrid ${JUNA_DIR}/Juna_CSF.nii.gz pad -uniform ${JUNA_PAD} ${JUNA_DIR}/Juna_CSF_pad.nii.gz -force
 
 
 JUNA_TO_JUNAROT_AFF=${JUNA_DIR}/Juna_to_JUNAROT_0GenericAffine.mat
@@ -109,7 +109,7 @@ antsApplyTransforms \
     --transform ${JUNA_TO_JUNAROT_AFF} \
     --output ${JUNA_DIR}/Juna_GM_junarot_space_tmp.nii.gz
 # clip negatives from spline
-mrcalc ${JUNA_DIR}/Juna_GM_junarot_space_tmp.nii.gz 0 -max ${JUNA_DIR}/Juna_GM_junarot_space.nii.gz
+mrcalc ${JUNA_DIR}/Juna_GM_junarot_space_tmp.nii.gz 0 -max ${JUNA_DIR}/Juna_GM_junarot_space.nii.gz -force
 rm -f ${JUNA_DIR}/Juna_GM_junarot_space_tmp.nii.gz
 
 antsApplyTransforms \
@@ -121,7 +121,7 @@ antsApplyTransforms \
     --transform ${JUNA_TO_JUNAROT_AFF} \
     --output ${JUNA_DIR}/Juna_WM_junarot_space_tmp.nii.gz
 # clip negatives from spline
-mrcalc ${JUNA_DIR}/Juna_WM_junarot_space_tmp.nii.gz 0 -max ${JUNA_DIR}/Juna_WM_junarot_space.nii.gz
+mrcalc ${JUNA_DIR}/Juna_WM_junarot_space_tmp.nii.gz 0 -max ${JUNA_DIR}/Juna_WM_junarot_space.nii.gz -force
 rm -f ${JUNA_DIR}/Juna_WM_junarot_space_tmp.nii.gz
 
 antsApplyTransforms \
@@ -133,7 +133,7 @@ antsApplyTransforms \
     --transform ${JUNA_TO_JUNAROT_AFF} \
     --output ${JUNA_DIR}/Juna_CSF_junarot_space_tmp.nii.gz
 # clip negatives from spline
-mrcalc ${JUNA_DIR}/Juna_CSF_junarot_space_tmp.nii.gz 0 -max ${JUNA_DIR}/Juna_CSF_junarot_space.nii.gz
+mrcalc ${JUNA_DIR}/Juna_CSF_junarot_space_tmp.nii.gz 0 -max ${JUNA_DIR}/Juna_CSF_junarot_space.nii.gz -force
 rm -f ${JUNA_DIR}/Juna_CSF_junarot_space_tmp.nii.gz
 
 

@@ -11,6 +11,11 @@
 source ./SET_VARIABLES.sh
 
 
+
+# USE_VCORR=false
+USE_VCORR=true
+
+
 # Init or clear viz log file 
 THISLOG=${LOG_DIR}/11.sh
 echo "# START-OF-PROC" > $THISLOG
@@ -33,7 +38,27 @@ ${FSL_LOCAL}/fslmaths \
         ${FLASH_DIR_WARP}/data_epi.nii.gz
 
 
+DATA_B0=${FLASH_DIR_WARP}/data_epi.nii.gz
 MASK_EPI=${DIFF_DATA_DIR}/mask_junarot.nii.gz
+MASK_EPI_VCORR=${FLASH_DIR_WARP}/mask_junarot_patched_for_vcorr.nii.gz
+
+
+
+if [ "$USE_VCORR" = true ] ; then
+    echo "Using vcorr on B0 for Flash registration";
+    #
+    python3 ${SCRIPTS}/correct_intensity_1d.py \
+            --in ${DATA_B0} \
+            --out ${FLASH_DIR_WARP}/data_epi_vcorr.nii.gz \
+            --mask ${MASK_EPI_VCORR} \
+            --ori LR
+    #
+    DATA_B0=${FLASH_DIR_WARP}/data_epi_vcorr.nii.gz
+    #
+fi
+
+
+
 # Multiple rounds of N4
 echo 'Runing N4 on EPI Data'
 for i in $(seq 1 $N4_ITER)
@@ -44,7 +69,7 @@ do
 
         if [ $i == 1 ]
         then 
-                previous_iter_epi=${FLASH_DIR_WARP}/data_epi.nii.gz
+                previous_iter_epi=${DATA_B0}
         else
                 previous_iter_epi=${FLASH_DIR_WARP}/data_epi_N4_$( expr $i - 1 )x.nii.gz
         fi
@@ -56,16 +81,15 @@ do
                 -x $MASK_EPI \
                 -o [$current_iter_epi,$current_iter_epi_field]
 
-
 done
 
 
 
 
-data_move_N4=${FLASH_DIR_WARP}/data_flash_N4_${i}x.nii.gz
+data_move_N4=${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz
 mask_move=${FLASH_DIR_WARP}/mask_flash.nii.gz
 
-data_fix_N4=$current_iter_epi
+data_fix_N4=${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz
 mask_fix=$MASK_EPI
 
 
@@ -83,7 +107,7 @@ ${C3D_TOOL} \
 flirt -in ${data_move_N4} \
       -ref ${data_fix_N4} \
       -init ${JUNAROT_MAT} \
-      -out ${FLASH_DIR_WARP}/data_flash_N4_${i}x_flirt_junarot.nii.gz \
+      -out ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x_flirt_junarot.nii.gz \
       -applyxfm \
       -interp spline \
       # -v
@@ -91,7 +115,7 @@ flirt -in ${data_move_N4} \
 
 
 echo -e "\necho \"FLASH to EPI registration: Init junarot affine.\"" >> $THISLOG
-echo "mrview -load ${data_fix_N4} -interpolation 0 -colourmap 1 -mode 2 -load ${FLASH_DIR_WARP}/data_flash_N4_${i}x_flirt_junarot.nii.gz -interpolation 0 -colourmap 1 -mode 2" >> $THISLOG
+echo "mrview -load ${data_fix_N4} -interpolation 0 -colourmap 1 -mode 2 -load ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x_flirt_junarot.nii.gz -interpolation 0 -colourmap 1 -mode 2" >> $THISLOG
 
 
 
@@ -127,7 +151,7 @@ antsRegistration --dimensionality 3 --float 1 \
 
 
 echo -e "\necho \"FLASH to EPI registration: Ants SyN.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_WARP}/data_flash_N4_${i}x_flirt_junarot.nii.gz -interpolation 0 -colourmap 1 -mode 2 -load ${data_fix_N4} -interpolation 0 -colourmap 1 -mode 2 -load ${FLASH_DIR_WARP}/data_flash_warped.nii.gz -interpolation 0 -colourmap 1 -mode 2" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x_flirt_junarot.nii.gz -interpolation 0 -colourmap 1 -mode 2 -load ${data_fix_N4} -interpolation 0 -colourmap 1 -mode 2 -load ${FLASH_DIR_WARP}/data_flash_warped.nii.gz -interpolation 0 -colourmap 1 -mode 2" >> $THISLOG
 
 
 
@@ -153,9 +177,10 @@ for TEMP_FOLDER in ${FLASH_DIR_FA05} ${FLASH_DIR_FA12p5} ${FLASH_DIR_FA25} ${FLA
         --transform [${AFFINE_FLASH_TO_JUNAROT}, 0] \
         --output ${IM_OUTPUT_tmp}
         # clean the negatives from splines
-    mrcalc ${IM_OUTPUT_tmp} 0 -max ${IM_OUTPUT}
+    mrcalc ${IM_OUTPUT_tmp} 0 -max ${IM_OUTPUT} -force
     rm -f ${IM_OUTPUT_tmp}
 done
+
 
 IM_MOVE=${FLASH_DIR_WARP}/mask_flash.nii.gz
 IM_OUTPUT=${FLASH_DIR_WARP}/mask_flash_junarot.nii.gz

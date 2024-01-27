@@ -617,4 +617,4 @@ echo "mrview -load ${FLASH_DIR_FA80}/data_degibbs.nii.gz -interpolation 0 -mode 
 # add END-OF-PROC print to logfile
 echo -e "\n# END-OF-PROC" >> $THISLOG
 #
-echo $0 " Done" 
+echo $0 " Done"
