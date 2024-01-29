@@ -1,7 +1,17 @@
 #!/bin/bash
 
+# EBC pipeline: Run LSD odf pipeline
+# inputs:
+#
+# Previous Steps:
+#
+
 # Load Local Variables
 source ./SET_VARIABLES.sh
+
+# Init or clear viz log file 
+THISLOG=${LOG_DIR}/16.sh
+echo "# START-OF-PROC" > $THISLOG
 
 
 # make LSD processing folder
@@ -52,6 +62,10 @@ echo " " >> ${LSD_DIR}'/config.txt'
 
 
 
+echo -e "\necho \"Print LSD config file.\"" >> $THISLOG
+echo "cat ${LSD_DIR}/config.txt" >> $THISLOG
+
+
 # need to launch LSD script from the folder because paths arent setup properly
 cd /data/pt_02015/220601_LSD_Paper/lsd/
 
@@ -65,4 +79,36 @@ cd ${DIFF_DIR}
 
 
 
+OUTPUT_FOLDER=${LSD_DIR}
+PROC_FOLDER=${OUTPUT_FOLDER}/lsd_processing/
 
+
+echo -e "\necho \"Look at initial CSA odf fit (set odf scale to 1.5).\"" >> $THISLOG
+echo "mrview -load ${DIFF_DATA_NORM_RELEASE_DIR}/data_norm_mean.nii.gz -interpolation 0 -plane 1 -odf.load_sh ${PROC_FOLDER}/csa.nii.gz" >> $THISLOG
+
+echo -e "\necho \"Look at final Maxnorm fodf fit (set odf scale to 0.4).\"" >> $THISLOG
+echo "mrview -load ${DIFF_DATA_NORM_RELEASE_DIR}/data_norm_mean.nii.gz -interpolation 0 -plane 1 -odf.load_sh ${OUTPUT_FOLDER}/odf_best_aic_maxnorm.nii.gz" >> $THISLOG
+
+echo -e "\necho \"Look at final kernel ratios.\"" >> $THISLOG
+echo "mrview -load ${OUTPUT_FOLDER}/ratio_best_aic.nii.gz -interpolation 0 -mode 2 -intensity_range 0,5 -overlay.load ${DIFF_DATA_RELEASE_DIR}/mask.nii.gz -overlay.interpolation 0 -overlay.threshold_max 0.9" >> $THISLOG
+
+echo -e "\necho \"Look at final kernel MD.\"" >> $THISLOG
+echo "mrview -load ${OUTPUT_FOLDER}/kernel_MD_best_aic.nii.gz -interpolation 0 -mode 2 -intensity_range 0,1e-3 -overlay.load ${DIFF_DATA_RELEASE_DIR}/mask.nii.gz -overlay.interpolation 0 -overlay.threshold_max 0.9" >> $THISLOG
+
+echo -e "\necho \"Look at final fodf Nufo.\"" >> $THISLOG
+echo "mrview -load ${OUTPUT_FOLDER}/nufo_best_aic.nii.gz -interpolation 0 -mode 2 -intensity_range 0,3" >> $THISLOG
+
+echo -e "\necho \"Look at final LSD AIC.\"" >> $THISLOG
+echo "mrview -load ${OUTPUT_FOLDER}/aic_best_aic.nii.gz -interpolation 0 -mode 2 -intensity_range -500,0" >> $THISLOG
+
+echo -e "\necho \"Look at no-peak mask.\"" >> $THISLOG
+echo "mrview -load ${DIFF_DATA_NORM_RELEASE_DIR}/data_norm_mean.nii.gz -interpolation 0 -mode 2 -overlay.load ${OUTPUT_FOLDER}/mask_no_peak_best.nii.gz -overlay.interpolation 0 -overlay.opacity 0.5 -overlay.colour 1,0,0 -overlay.threshold_min 0.1" >> $THISLOG
+
+echo -e "\necho \"Look at Peaknorm fodf fit. (set odf scale to 0.4)\"" >> $THISLOG
+echo "mrview -load ${DIFF_DATA_NORM_RELEASE_DIR}/data_norm_mean.nii.gz -interpolation 0 -plane 1 -odf.load_sh ${OUTPUT_FOLDER}/odf_best_aic_peaknorm.nii.gz" >> $THISLOG
+
+# add END-OF-PROC print to logfile
+echo -e "\n# END-OF-PROC" >> $THISLOG
+
+
+echo $0 " Done" 
