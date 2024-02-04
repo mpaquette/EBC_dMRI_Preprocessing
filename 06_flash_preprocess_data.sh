@@ -156,7 +156,17 @@ mv -f ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA80}/data_degibbs.n
 
 
 
-
+echo -e "\necho \"Check Before and After degibbs for FLASH.\"" >> $THISLOG
+echo -e "echo \"5 deg.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA05}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA05}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"12.5 deg.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA12p5}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"25 deg.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA25}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA25}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"50 deg.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA50}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA50}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
+echo -e "echo \"80 deg.\"" >> $THISLOG
+echo "mrview -load ${FLASH_DIR_FA80}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA80}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
 
 if [ -n "$FLASH_HIGHRES" ]; then
   # echo "Processing Flash Highres"
@@ -186,6 +196,9 @@ if [ -n "$FLASH_HIGHRES" ]; then
     #
     mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz
     mv -f ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz
+
+    echo -e "echo \"HIGHRES.\"" >> $THISLOG
+    echo "mrview -load ${FLASH_DIR_HIGHRES}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
 else
   echo "No Flash Highres specified, skipping"
 
@@ -222,6 +235,9 @@ if [ -n "$FLASH_ULTRA_HIGHRES" ]; then
     #
     mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz
     mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz
+
+    echo -e "echo \"ULTRAHIGHRES.\"" >> $THISLOG
+    echo "mrview -load ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
 else
   echo "No Flash Ultra Highres specified, skipping"
 
@@ -230,23 +246,6 @@ fi
 
 
 
-
-
-echo -e "\necho \"Check Before and After degibbs for FLASH.\"" >> $THISLOG
-echo -e "echo \"5 deg.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_FA05}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA05}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
-echo -e "echo \"12.5 deg.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_FA12p5}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
-echo -e "echo \"25 deg.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_FA25}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA25}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
-echo -e "echo \"50 deg.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_FA50}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA50}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
-echo -e "echo \"80 deg.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_FA80}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_FA80}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
-echo -e "echo \"HIGHRES.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_HIGHRES}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
-echo -e "echo \"ULTRAHIGHRES.\"" >> $THISLOG
-echo "mrview -load ${FLASH_DIR_ULTRA_HIGHRES}/data.nii.gz -interpolation 0 -load ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz -interpolation 0" >> $THISLOG
 
 
 
