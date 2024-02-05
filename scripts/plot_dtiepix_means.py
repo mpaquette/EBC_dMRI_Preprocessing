@@ -2,10 +2,17 @@ import numpy as np
 import nibabel as nib
 import pylab as pl
 
+def atleast_4d(x):
+    if x.ndim < 4:
+        y = np.expand_dims(np.atleast_3d(x), axis=3)
+    else:
+        y = x
+
+    return y
 
 def main(nums):
     imgs = [nib.load('nifti_raw/DtiEpiX{:}P1.nii.gz'.format(n)) for n in nums]
-    datas = [img.get_fdata() for img in imgs]
+    datas = [atleast_4d(img.get_fdata()) for img in imgs]
     spatial_means = [data.mean(axis=(0,1,2)) for data in datas]
     Ns = [data.shape[3] for data in datas]
     means = np.concatenate(spatial_means, axis=0)
