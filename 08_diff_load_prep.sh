@@ -333,6 +333,8 @@ while [ $MASKING_DONE == 0 ]; do
              -odt int
 
     # Check the results
+    echo "mrview -load ${IM_IN}-interpolation 0 -mode 2 -overlay.load ${DIFF_DATA_DIR}/mask_tmp_connect_dil.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3"
+
     mrview \
             -load ${IM_IN} \
             -interpolation 0  \
