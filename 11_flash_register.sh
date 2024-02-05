@@ -12,8 +12,8 @@ source ./SET_VARIABLES.sh
 
 
 
-# USE_VCORR=false
-USE_VCORR=true
+USE_VCORR=false
+# USE_VCORR=true
 
 
 # Init or clear viz log file 
