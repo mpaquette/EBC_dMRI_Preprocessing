@@ -41,6 +41,7 @@ ${FSL_LOCAL}/fslmaths \
 DATA_B0=${FLASH_DIR_WARP}/data_epi.nii.gz
 MASK_EPI=${DIFF_DATA_DIR}/mask_junarot.nii.gz
 # MASK_EPI_VCORR=${FLASH_DIR_WARP}/mask_junarot_patched_for_vcorr.nii.gz
+MASK_EPI_VCORR=${MASK_EPI}
 
 
 
