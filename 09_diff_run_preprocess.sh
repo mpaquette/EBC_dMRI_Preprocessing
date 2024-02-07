@@ -484,7 +484,31 @@ echo -e "\necho \"Check Curated DTI fit (MD, RD, FA, color-FA).\"" >> $THISLOG
 echo "mrview -load ${DTI_DIR}/dti_MD.nii.gz -interpolation 0 -mode 2 -load ${DTI_DIR}/dti_RD.nii.gz -interpolation 0 -mode 2 -load ${DTI_DIR}/dti_FA.nii.gz -interpolation 0 -mode 2 -load ${DTI_DIR}/dti_cFA.nii.gz -interpolation 0 -mode 2" >> $THISLOG
 
 
+${FSL_LOCAL}/dtigen -t ${DTI_DIR}/dti_tensor.nii.gz \
+                    -o ${DTI_DIR}/predicted_signal.nii.gz \
+                    -b ${DIFF_DATA_DIR}/data.bval \
+                    -r ${DIFF_DATA_DIR}/data.bvec_junarot \
+                    -m ${DIFF_DATA_DIR}/mask_junarot.nii.gz \
+                    --s0=${DTI_DIR}/dti_S0.nii.gz
 
+
+mrcalc ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend_eddy.nii.gz \
+       ${DTI_DIR}/predicted_signal.nii.gz \
+       -sub -abs ${DTI_DIR}/residuals_abs.nii.gz
+
+
+fslmaths ${DTI_DIR}/residuals_abs.nii.gz -mul ${DTI_DIR}/residuals_abs.nii.gz -Tmean ${DTI_DIR}/residuals_mse.nii.gz
+
+fslmaths ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend_eddy.nii.gz \
+    -mul ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend_eddy.nii.gz \
+    -Tmean ${DIFF_DATA_DIR}/squared_data_mean.nii.gz
+
+mrcalc ${DTI_DIR}/residuals_mse.nii.gz \
+       ${DIFF_DATA_DIR}/squared_data_mean.nii.gz \
+       -divide \
+       ${DIFF_DATA_DIR}/mask_junarot.nii.gz \
+       -multiply \
+       ${DTI_DIR}/residuals_nmse.nii.gz
 
 
 #
