@@ -155,7 +155,7 @@ then
     # Build index of volume to use for calibration
     # TODO helper script to make simple index
     # acquisition order was: 
-    # 1_reheat, 3, middle_b0, 2, 4, 5, 6, final_b0
+    # 2, 3, middle_b0, 4, 5, 6, 1_reheat, final_b0
     # data order is: 
     # middle_b0, 1_reheat, 2, 3, 4, 5, 6, final_b0
     #
@@ -165,8 +165,8 @@ then
     # #
     # echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt; # include middle_b0
     # #
-    # for i in {1..10}; do # exclude 1_of_6_reheat 
-    #     echo '0' >> ${CONFIG_DIR}/temp_corr_index.txt;
+    # for i in {1..10}; do # include 1_of_6_reheat 
+    #     echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt;
     # done
     # #
     # for i in {1..5}; do # exclude 2_of_6
@@ -177,8 +177,8 @@ then
     #     echo '0' >> ${CONFIG_DIR}/temp_corr_index.txt;
     # done
     # #
-    # for i in {1..10}; do # include 4_of_6
-    #     echo '1' >> ${CONFIG_DIR}/temp_corr_index.txt;
+    # for i in {1..10}; do # exclude 4_of_6
+    #     echo '0' >> ${CONFIG_DIR}/temp_corr_index.txt;
     # done
     # #
     # for i in {1..10}; do # include 5_of_6
