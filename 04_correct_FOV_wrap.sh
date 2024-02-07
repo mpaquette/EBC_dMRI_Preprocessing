@@ -357,10 +357,24 @@ for t in ${FOVARR[@]}; do
     NEWNAMETMP=${UNWRAP_PROC_DIR}/$filename'_dwi_tmp.nii.gz' # add _dwi
     FOV_MASK_DWI_PATHS+=$NEWNAME' '
     #
+    # antsApplyTransforms --dimensionality 3 --float 1 \
+    #         --input $t \
+    #         --reference-image $data_fix_N4 \
+    #         --interpolation NearestNeighbor \
+    #         --transform ${UNWRAP_PROC_DIR}/flash_to_epi_1Warp.nii.gz \
+    #         --transform [${UNWRAP_PROC_DIR}/flash_to_epi_0GenericAffine.mat,0] \
+    #         --output $NEWNAMETMP \
+    #         -v 1
+    # #
+    # ${FSL_LOCAL}/fslmaths \
+    #         $NEWNAMETMP \
+    #         -fillh26 \
+    #         $NEWNAME \
+    #         -odt int
     antsApplyTransforms --dimensionality 3 --float 1 \
             --input $t \
             --reference-image $data_fix_N4 \
-            --interpolation NearestNeighbor \
+            --interpolation Linear \
             --transform ${UNWRAP_PROC_DIR}/flash_to_epi_1Warp.nii.gz \
             --transform [${UNWRAP_PROC_DIR}/flash_to_epi_0GenericAffine.mat,0] \
             --output $NEWNAMETMP \
@@ -368,6 +382,7 @@ for t in ${FOVARR[@]}; do
     #
     ${FSL_LOCAL}/fslmaths \
             $NEWNAMETMP \
+            -bin \
             -fillh26 \
             $NEWNAME \
             -odt int
@@ -385,10 +400,25 @@ for t in ${OVERARR[@]}; do
     NEWNAMETMP=${UNWRAP_PROC_DIR}/$filename'_dwi_tmp.nii.gz' # add _dwi
     FOV_OVERLAP_DWI_PATHS+=$NEWNAME' '
     #
+    # antsApplyTransforms --dimensionality 3 --float 1 \
+    #         --input $t \
+    #         --reference-image $data_fix_N4 \
+    #         --interpolation NearestNeighbor \
+    #         --transform ${UNWRAP_PROC_DIR}/flash_to_epi_1Warp.nii.gz \
+    #         --transform [${UNWRAP_PROC_DIR}/flash_to_epi_0GenericAffine.mat,0] \
+    #         --output $NEWNAMETMP \
+    #         -v 1
+    # #
+    # ${FSL_LOCAL}/fslmaths \
+    #         $NEWNAMETMP \
+    #         -fillh26 \
+    #         $NEWNAME \
+    #         -odt int
+    #
     antsApplyTransforms --dimensionality 3 --float 1 \
             --input $t \
             --reference-image $data_fix_N4 \
-            --interpolation NearestNeighbor \
+            --interpolation Linear \
             --transform ${UNWRAP_PROC_DIR}/flash_to_epi_1Warp.nii.gz \
             --transform [${UNWRAP_PROC_DIR}/flash_to_epi_0GenericAffine.mat,0] \
             --output $NEWNAMETMP \
@@ -396,6 +426,7 @@ for t in ${OVERARR[@]}; do
     #
     ${FSL_LOCAL}/fslmaths \
             $NEWNAMETMP \
+            -bin \
             -fillh26 \
             $NEWNAME \
             -odt int
@@ -520,7 +551,6 @@ if [ -n "$FLASH_HIGHRES" ]; then
         #
         ${FSL_LOCAL}/fslmaths \
                 $NEWNAMETMP \
-                -thr 0.1 \
                 -bin \
                 -fillh26 \
                 $NEWNAME \
@@ -550,7 +580,6 @@ if [ -n "$FLASH_HIGHRES" ]; then
         #
         ${FSL_LOCAL}/fslmaths \
                 $NEWNAMETMP \
-                -thr 0.1 \
                 -bin \
                 -fillh26 \
                 $NEWNAME \
@@ -683,7 +712,6 @@ if [ -n "$FLASH_ULTRA_HIGHRES" ]; then
         #
         ${FSL_LOCAL}/fslmaths \
                 $NEWNAMETMP \
-                -thr 0.1 \
                 -bin \
                 -fillh26 \
                 $NEWNAME \
@@ -713,7 +741,6 @@ if [ -n "$FLASH_ULTRA_HIGHRES" ]; then
         #
         ${FSL_LOCAL}/fslmaths \
                 $NEWNAMETMP \
-                -thr 0.1 \
                 -bin \
                 -fillh26 \
                 $NEWNAME \
