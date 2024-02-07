@@ -3,42 +3,43 @@
 # This file needs to be copied in the preprocessing folder of each respective subject. Potential changes in processing should be made in this folder.
 
 # Folder of Bruker Data in Bruker Format
-BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/007_C_C_NEGRA/raw/20210217_151226_007_C_C_NEGRA_ID11357_1_2_rr/20210217_151226_007_C_C_NEGRA_ID11357_1_2/
+BRUKER_RAW_DIR=
 
 #########################################
 # Select Scans for Processing
 
 # Reorientation Check
-CHECK_REORIENT_SCAN=14 # Typically the first B0 
+CHECK_REORIENT_SCAN= # fullproc convention is to use middle_b0, never use first_b0
 
 # Noisemap
-NOISE_SCAN=10
+NOISE_SCAN=
 
 # Topup (deprecated)
-TOPUP_LR_RUN=19 # Typically the first B0 
-TOPUP_RL_RUN=20 # Typically the corresponding revB0 
+TOPUP_LR_RUN= # fullproc convention is to use final_b0
+TOPUP_RL_RUN= # fullproc convention is to use final_b0_rev
 
 
 # Diffusion Data
-DIFF_SCANS=(14 30 12 13 15 16 17 19)
-DATA_RESCALING=0.001660 
-MASK_THRESHOLD=0.1
+DIFF_SCANS=() # fullproc convention is middle_b0, 1, 2, 3, 4, 5, 6, final_b0. Ignore first_b0 and replace with reheated version.
+DATA_RESCALING=
+MASK_THRESHOLD=
 DRIFT_CORRECTION=NO #YES/NO # NO is default
 HEAT_CORRECTION=YES #YES/NO # YES is now default for all brain
 
 
 # FLASH Scans
-FLASH_FA_05=21
-FLASH_FA_12p5=22
-FLASH_FA_25=23
-FLASH_FA_50=24
-FLASH_FA_80=25
-FLASH_HIGHRES=31
+FLASH_FA_05=
+FLASH_FA_12p5=
+FLASH_FA_25=
+FLASH_FA_50=
+FLASH_FA_80=
+FLASH_HIGHRES=
 FLASH_ULTRA_HIGHRES=
 
 ####################################
 
 # FOV wraping mask paths
+# Probably in /data/pt_02101_dMRI/misc/FOV_wrap/
 
 FOV_MASK_PATHS=' '
 
@@ -51,8 +52,8 @@ FLAG_FLASH_CORR=YES #YES/NO # YES is still default for all brain even post "patc
 
 
 # Use nonlinear registration to correct for non EPI traj adjusted reversed PE scans
-FLAG_TOPUP_RETRO_RECON=YES #YES/NO
-RETRO_RECON_NUMBER=3
+FLAG_TOPUP_RETRO_RECON=N0 #YES/NO
+RETRO_RECON_NUMBER=
 
 ######
 # BASIC PARAMETERS, TYPICALLY SHOULD NOT CHANGE
