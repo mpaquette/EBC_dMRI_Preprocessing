@@ -62,12 +62,14 @@ get_distribution -f \
 mrcalc ${NOISEMAP_DIR}/sigmas_unmasked.nii.gz \
        ${NOISEMAP_DIR}/mask_FOV_extent.nii.gz \
        -mult \
-       ${NOISEMAP_DIR}/sigmas.nii.gz
+       ${NOISEMAP_DIR}/sigmas.nii.gz \
+       -force
 
 mrcalc ${NOISEMAP_DIR}/Ns_unmasked.nii.gz \
        ${NOISEMAP_DIR}/mask_FOV_extent.nii.gz \
        -mult \
-       ${NOISEMAP_DIR}/Ns.nii.gz
+       ${NOISEMAP_DIR}/Ns.nii.gz \
+       -force
 
 
 # rm ${NOISEMAP_DIR}/sigmas_unmasked.nii.gz
