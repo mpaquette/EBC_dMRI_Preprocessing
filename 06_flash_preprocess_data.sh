@@ -544,7 +544,8 @@ echo "mrview -load ${DATA_WARPED} -interpolation 0 -mode 2 -overlay.load ${WORKD
 # Crop mask to obtain final JUNAROT space
 scil_crop_volume.py ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz \
                     ${WORKDIR}/JUNAROT_space_ref.nii.gz \
-                    --output_bbox ${WORKDIR}/junarot_final_crop.pkl
+                    --output_bbox ${WORKDIR}/junarot_final_crop.pkl \
+                    -f
 
 
 
