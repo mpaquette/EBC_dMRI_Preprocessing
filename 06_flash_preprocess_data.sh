@@ -452,7 +452,8 @@ N4BiasFieldCorrection -d 3 \
 
 mrgrid ${TEMPLATE} \
        pad -uniform ${PAD} \
-       ${TEMPLATE_PAD}
+       ${TEMPLATE_PAD} \
+       -force
 
 # create temporary template with the data's affine
 QFORM_PADDED_DATA=$(fslorient -getsform ${DATA})
@@ -558,7 +559,8 @@ scil_crop_volume.py ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz \
 #        crop -axis 0 62,64 \
 #             -axis 1 35,45 \
 #             -axis 2  2,29 \
-#        ${WORKDIR}/mask_flash_dil_2mm_JUNAROT_crop_test.nii.gz
+#        ${WORKDIR}/mask_flash_dil_2mm_JUNAROT_crop_test.nii.gz \
+#        -force
 
 python3 ${SCRIPTS}/offset_transform_with_bbox.py \
         --mat $FLIRT_MAT_ROT \
