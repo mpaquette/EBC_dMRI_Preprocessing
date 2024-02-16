@@ -84,9 +84,11 @@ def main():
     # plt.axvline(N_max)
     # plt.show()
     sigma_clip = np.clip(sigma, sigma_min, sigma_max)
-    sigma_clip *= mask
+    # sigma_clip *= mask
+    sigma_clip[np.logical_not(mask)] = 0
     N_clip = np.clip(N, N_min, N_max)
-    N_clip *= mask
+    # N_clip *= mask
+    N_clip[np.logical_not(mask)] = 0
 
     # average the estimation over AXES
     # taking into account mask
