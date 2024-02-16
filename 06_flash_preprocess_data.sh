@@ -141,11 +141,11 @@ ${MRDEGIBBS3D} -force \
 
 
 # clip zeros
-mrcalc ${FLASH_DIR_FA05}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA12p5}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA25}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA50}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA80}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_FA05}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA12p5}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA25}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA50}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA80}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz -force
 
 
 mv -f ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA05}/data_degibbs.nii.gz
@@ -194,7 +194,7 @@ if [ -n "$FLASH_HIGHRES" ]; then
         ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz \
         -nthreads ${N_CORES}
     #
-    mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz
+    mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz -force
     mv -f ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz
 
     echo -e "echo \"HIGHRES.\"" >> $THISLOG
@@ -233,7 +233,7 @@ if [ -n "$FLASH_ULTRA_HIGHRES" ]; then
         ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz \
         -nthreads ${N_CORES}
     #
-    mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz
+    mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz -force
     mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz
 
     echo -e "echo \"ULTRAHIGHRES.\"" >> $THISLOG
