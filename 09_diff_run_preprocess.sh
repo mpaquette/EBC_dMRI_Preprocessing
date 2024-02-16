@@ -289,7 +289,8 @@ N4BiasFieldCorrection \
 mrcalc ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend.nii.gz \
        ${DIFF_DATA_N4_DIR}/N4_biasfield.nii.gz \
        -div \
-       ${DIFF_DATA_N4_DIR}/data_N4.nii.gz
+       ${DIFF_DATA_N4_DIR}/data_N4.nii.gz \
+       -force
 
 # cleanup N4 stuff
 rm -f ${DIFF_DATA_DIR}/b0s_debias_denoise_degibbs_driftcorr_detrend.nii.gz
@@ -462,21 +463,21 @@ ${FSL_LOCAL}/dtifit -k ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_de
 
 # Calculate color FA
 mv ${DTI_DIR}/dti_FA.nii.gz ${DTI_DIR}/dti_FA_raw.nii.gz
-mrcalc ${DTI_DIR}/dti_FA_raw.nii.gz 0 -max 1 -min ${DTI_DIR}/dti_FA.nii.gz
-mrcalc ${DTI_DIR}/dti_FA.nii.gz ${DTI_DIR}/dti_V1.nii.gz -mult ${DTI_DIR}/dti_cFA.nii.gz
+mrcalc ${DTI_DIR}/dti_FA_raw.nii.gz 0 -max 1 -min ${DTI_DIR}/dti_FA.nii.gz -force
+mrcalc ${DTI_DIR}/dti_FA.nii.gz ${DTI_DIR}/dti_V1.nii.gz -mult ${DTI_DIR}/dti_cFA.nii.gz -force
 rm -f ${DTI_DIR}/dti_FA_raw.nii.gz
 
 # Calculate Radial Diffusivity
 mv ${DTI_DIR}/dti_L2.nii.gz ${DTI_DIR}/dti_L2_raw.nii.gz
-mrcalc ${DTI_DIR}/dti_L2_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_L2.nii.gz
+mrcalc ${DTI_DIR}/dti_L2_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_L2.nii.gz -force
 mv ${DTI_DIR}/dti_L3.nii.gz ${DTI_DIR}/dti_L3_raw.nii.gz
-mrcalc ${DTI_DIR}/dti_L3_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_L3.nii.gz
-mrcalc ${DTI_DIR}/dti_L2.nii.gz ${DTI_DIR}/dti_L3.nii.gz -add 0.5 -mult ${DTI_DIR}/dti_RD.nii.gz
+mrcalc ${DTI_DIR}/dti_L3_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_L3.nii.gz -force
+mrcalc ${DTI_DIR}/dti_L2.nii.gz ${DTI_DIR}/dti_L3.nii.gz -add 0.5 -mult ${DTI_DIR}/dti_RD.nii.gz -force
 rm -f ${DTI_DIR}/dti_L2_raw.nii.gz
 rm -f ${DTI_DIR}/dti_L3_raw.nii.gz
 
 mv ${DTI_DIR}/dti_MD.nii.gz ${DTI_DIR}/dti_MD_raw.nii.gz
-mrcalc ${DTI_DIR}/dti_MD_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_MD.nii.gz
+mrcalc ${DTI_DIR}/dti_MD_raw.nii.gz 0 -max 0.003 -min ${DTI_DIR}/dti_MD.nii.gz -force
 rm -f ${DTI_DIR}/dti_MD_raw.nii.gz
 
 
@@ -494,7 +495,8 @@ ${FSL_LOCAL}/dtigen -t ${DTI_DIR}/dti_tensor.nii.gz \
 
 mrcalc ${DIFF_DATA_DIR}/data_debias_denoise_degibbs_driftcorr_detrend_eddy.nii.gz \
        ${DTI_DIR}/predicted_signal.nii.gz \
-       -sub -abs ${DTI_DIR}/residuals_abs.nii.gz
+       -sub -abs ${DTI_DIR}/residuals_abs.nii.gz \
+       -force
 
 
 fslmaths ${DTI_DIR}/residuals_abs.nii.gz -mul ${DTI_DIR}/residuals_abs.nii.gz -Tmean ${DTI_DIR}/residuals_mse.nii.gz
@@ -508,7 +510,8 @@ mrcalc ${DTI_DIR}/residuals_mse.nii.gz \
        -divide \
        ${DIFF_DATA_DIR}/mask_junarot.nii.gz \
        -multiply \
-       ${DTI_DIR}/residuals_nmse.nii.gz
+       ${DTI_DIR}/residuals_nmse.nii.gz \
+       -force
 
 
 #
@@ -573,7 +576,8 @@ then
     mrcalc ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm.nii.gz \
            ${DIFF_DATA_DIR}/computed_temp_signal_mult_junarot.nii.gz \
            -mult \
-           ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz
+           ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz \
+           -force
 
     cp ${DIFF_DATA_NORM_RELEASE_DIR}/sigma_norm_heatcorr.nii.gz ${NOISEMAP_DIR}/sigma_norm_heatcorr.nii.gz
 
