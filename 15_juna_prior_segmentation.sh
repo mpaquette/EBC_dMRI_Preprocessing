@@ -30,8 +30,8 @@ CONTRAST_B0=${JUNA_DIR}/B0_N4_${N4_ITER}x.nii.gz
 CONTRAST_SM=${JUNA_DIR}/SM.nii.gz
 # Diffusion contrasts
 # CLipping negatives
-mrcalc ${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz 0 -max ${CONTRAST_B0}
-mrcalc ${TISSUE_SEGMENTATION_DIR}/data_norm_mean.nii.gz 0 -max ${CONTRAST_SM}
+mrcalc ${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz 0 -max ${CONTRAST_B0} -force
+mrcalc ${TISSUE_SEGMENTATION_DIR}/data_norm_mean.nii.gz 0 -max ${CONTRAST_SM} -force
 
 
 
