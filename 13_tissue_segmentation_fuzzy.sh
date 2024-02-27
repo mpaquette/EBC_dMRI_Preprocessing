@@ -176,7 +176,15 @@ python3 ${SCRIPTS}/fuzzyseg.py \
     --out   ${TISSUE_SEGMENTATION_DIR}'/'
 
 
+echo -e "\necho \"Check FLASH mask in JUNAROT space.\"" >> $THISLOG
+echo "mrview -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_2class_idx_0.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_2class_idx_1.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_3class_idx_0.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_3class_idx_1.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_3class_idx_2.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_4class_idx_0.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_4class_idx_1.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_4class_idx_2.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/noFA_fuzzy_label_4class_idx_3.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_2class_idx_0.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_2class_idx_1.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_3class_idx_0.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_3class_idx_1.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_3class_idx_2.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_4class_idx_0.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_4class_idx_1.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_4class_idx_2.nii.gz -interpolation 0 -mode 2 -load ${TISSUE_SEGMENTATION_DIR}/fuzzy_label_4class_idx_3.nii.gz -interpolation 0 -mode 2" >> $THISLOG
 
 
 
+
+
+# add END-OF-PROC print to logfile
+echo -e "\n# END-OF-PROC" >> $THISLOG
+
+echo 'Done'
 

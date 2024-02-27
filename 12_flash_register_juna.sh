@@ -399,3 +399,5 @@ echo "mrview -load ${FIXED3} -interpolation 0 -mode 2 -overlay.load ${LABELS_RAW
 # add END-OF-PROC print to logfile
 echo -e "\n# END-OF-PROC" >> $THISLOG
 
+echo 'Done'
+
