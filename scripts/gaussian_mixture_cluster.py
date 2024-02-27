@@ -76,7 +76,7 @@ def _assign_probability(data, prior, counts, mus, sigmas, mask):
         intensity_likelihoods[..., i] = (2*np.pi)**(-n/2) * np.linalg.det(sigmas[i])**(-1/2) * np.exp(-0.5*np.einsum('...i,ij,...j->...', diff, np.linalg.inv(sigmas[i]), diff))
 
     # patch for voxel with all likelihood at 0, due to precision limitations
-    intensity_likelihoods[np.all(intensity_likelihoods==0, axis=-1)] = [1e-100, 1e-100, 1e-100]
+    intensity_likelihoods[np.all(intensity_likelihoods==0, axis=-1)] = [1e-100]*K
 
 
     current_prior = np.zeros_like(prior) # in the ref: s_ij_k
