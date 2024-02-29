@@ -116,7 +116,7 @@ antsRegistration --dimensionality 3 --float 1 \
         --smoothing-sigmas 3x2x1x0 \
         --transform SyN[0.1,3,0] \
         --metric CC[$data_fix_N4,$data_move_N4,1,4] \
-        --convergence [0x0x0x0x0,1e-6,10] \
+        --convergence [400x200x100x50x40,1e-6,10] \
         --shrink-factors 16x8x4x2x1 \
         --smoothing-sigmas 4x3x2x1x0 \
         -x [$mask_fix,$mask_move] \
