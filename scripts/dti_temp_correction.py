@@ -200,7 +200,9 @@ def main():
     pl.legend()
     pl.xlabel('volume ordering')
     pl.title('Signal multiplier (spatial)')
-    pl.show()
+    pl.show(block=False)
+    pl.pause(600) # close after 5min if no interaction
+    pl.close()
 
 
 
