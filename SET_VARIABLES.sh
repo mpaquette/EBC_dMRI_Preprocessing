@@ -3,7 +3,7 @@
 # This file needs to be copied in the preprocessing folder of each respective subject. Potential changes in processing should be made in this folder.
 
 # Folder of Bruker Data in Bruker Format
-BRUKER_RAW_DIR=
+BRUKER_RAW_DIR=/data/pt_02101_dMRI/data/067_B_C_XEKELE/raw/20230524_094148_067_B_C_XEKELE_1_1/
 
 #########################################
 # Select Scans for Processing
