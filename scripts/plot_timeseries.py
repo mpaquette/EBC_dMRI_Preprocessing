@@ -4,7 +4,7 @@
 import argparse
 import numpy as np
 import nibabel as nib
-import pylab as plt
+import pylab as pl
 
 
 DESCRIPTION = """
@@ -69,7 +69,7 @@ def main():
     vols_nob0 = vols[np.logical_not(b0s)]
 
     # Plot timeseries
-    fig, axs = plt.subplots(2)
+    fig, axs = pl.subplots(2)
     fig.suptitle('Mean Signal Across Time')
     axs[0].plot(vols, data_mean, label = 'Full signal')
     axs[0].grid('minor')
@@ -83,7 +83,9 @@ def main():
     axs[1].set_xlabel('Volume')
     axs[1].set_ylabel('Signal')
     
-    plt.show()
+    pl.show(block=False)
+    pl.pause(600) # close after 5min if no interaction
+    pl.close()
 
     # Save output to specified folder
     np.savetxt(outpath + '/meanvols.txt', np.concatenate((vols[:, None], data_mean[:, None]), axis = 1), fmt = '%d, %2.5f')
