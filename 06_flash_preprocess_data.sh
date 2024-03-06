@@ -319,6 +319,8 @@ while [ $MASKING_DONE == 0 ]; do
              -odt int
 
     # Check the results
+    echo "mrview -load ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2 -overlay.load ${FLASH_DIR_WARP}/mask_flash_connect_dil.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3"
+
     mrview \
             -load ${FLASH_DIR_WARP}/data_flash_N4_${N4_ITER}x.nii.gz \
             -interpolation 0  \
