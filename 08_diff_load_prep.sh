@@ -325,7 +325,7 @@ while [ $MASKING_DONE == 0 ]; do
             ${DIFF_DATA_DIR}/mask_tmp.nii.gz connect ${DIFF_DATA_DIR}/mask_tmp_connect.nii.gz
 
     # dilate flash mask with sphere r=2vox
-    fslmaths ${DIFF_DATA_DIR}mask_tmp_connect.nii.gz \
+    fslmaths ${DIFF_DATA_DIR}/mask_tmp_connect.nii.gz \
              -kernel sphere 1.0 \
              -dilM \
              -bin \
