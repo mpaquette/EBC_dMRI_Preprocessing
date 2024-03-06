@@ -18,7 +18,7 @@ warnings.simplefilter("ignore", RuntimeWarning)
 desciption = """
 Compute the volume-wise diffusivity correction factor from the DTI formulation [1].
 Apply the correction to the log of normalized-signal and return it.
-[1] Paquette et al., ISMRM 2023, (under review).
+[1] Paquette et al., ISMRM 2023.
 """
 
 
@@ -102,12 +102,13 @@ def main():
     data_spatial_mean = data[mask].mean(axis=0)
     #
     pl.figure()
+    pl.subplot(2,2,1)
     pl.plot(np.arange(bval.shape[0])[isnonb0], data_spatial_mean[isnonb0], color='black', linewidth=2)
     pl.scatter(np.where(index), np.ones(index.sum())*(0.95*data_spatial_mean.min()), label='Included Volumes', color='blue', alpha=0.5)
     pl.legend()
     pl.xlabel('volume ordering')
     pl.title('Mean intensity (spatial, no b0s)')
-    pl.show()
+    # pl.show()
 
 
 
@@ -116,13 +117,14 @@ def main():
     print('Computing calibration.') 
     ks = calibrate_many(data[mask], bvec, bval, index, current_k=None)
     #
-    pl.figure()
+    # pl.figure()
+    pl.subplot(2,2,2)
     pl.plot(np.arange(bval.shape[0]), ks, color='black', linewidth=2)
     pl.scatter(np.where(index), np.ones(index.sum())*(0.99*ks.min()), label='Included Volumes', color='blue')
     pl.axhline(1.0, color='red', alpha=0.5, linestyle='dashed')
     pl.title('Diffusivity multipliers')
     pl.xlabel('volume ordering')
-    pl.show()
+    # pl.show()
     #
     # Save Diffusivity multiplier coefs
     print('Saving Diffusivity multipliers')
@@ -162,13 +164,14 @@ def main():
     # Step 5: Compare spatial-mean data in mask
     data_corr_spatial_mean = data_corr[mask].mean(axis=0)
     #
-    pl.figure()
+    # pl.figure()
+    pl.subplot(2,2,3)
     pl.plot(np.arange(bval.shape[0])[isnonb0], data_spatial_mean[isnonb0], color='black', linewidth=2, label='before', alpha=0.75)
     pl.plot(np.arange(bval.shape[0])[isnonb0], data_corr_spatial_mean[isnonb0], color='red', linewidth=2, label='after', alpha=0.75)
     pl.legend()
     pl.xlabel('volume ordering')
     pl.title('Mean intensity (spatial, no b0s)')
-    pl.show()
+    # pl.show()
 
 
 
@@ -190,7 +193,8 @@ def main():
     signal_mult_spatial_mean = signal_mult[mask].mean(axis=0)
     signal_mult_spatial_median = np.median(signal_mult[mask], axis=0)
     #
-    pl.figure()
+    # pl.figure()
+    pl.subplot(2,2,4)
     pl.plot(np.arange(bval.shape[0]), signal_mult_spatial_mean, color='black', linewidth=2, label='mean')
     pl.plot(np.arange(bval.shape[0]), signal_mult_spatial_median, color='blue', linewidth=2, label='median')
     pl.legend()

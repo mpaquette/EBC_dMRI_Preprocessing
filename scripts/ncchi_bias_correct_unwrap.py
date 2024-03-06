@@ -84,9 +84,11 @@ def main():
     # plt.axvline(N_max)
     # plt.show()
     sigma_clip = np.clip(sigma, sigma_min, sigma_max)
-    sigma_clip *= mask
+    # sigma_clip *= mask
+    sigma_clip[np.logical_not(mask)] = 0
     N_clip = np.clip(N, N_min, N_max)
-    N_clip *= mask
+    # N_clip *= mask
+    N_clip[np.logical_not(mask)] = 0
 
     # average the estimation over AXES
     # taking into account mask
@@ -125,71 +127,71 @@ def main():
     sigma_vmax = np.percentile(sigma_array, 95)
 
 
-    # Plot the noisemap and the sigma variation along the specific axes
-    plt.figure()
-    plt.subplot(4,3,1)
-    plt.title('Orig')
-    plt.imshow(data[round(dims[0]/2), :, :, 0], vmin = data_vmin, vmax = data_vmax)
-    plt.axis('off')
+    # # Plot the noisemap and the sigma variation along the specific axes
+    # plt.figure()
+    # plt.subplot(4,3,1)
+    # plt.title('Orig')
+    # plt.imshow(data[round(dims[0]/2), :, :, 0], vmin = data_vmin, vmax = data_vmax)
+    # plt.axis('off')
 
-    plt.subplot(4,3,2)
-    plt.title('Orig')
-    plt.imshow(data[:, round(dims[1]/2), :, 0], vmin = data_vmin, vmax = data_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,2)
+    # plt.title('Orig')
+    # plt.imshow(data[:, round(dims[1]/2), :, 0], vmin = data_vmin, vmax = data_vmax)
+    # plt.axis('off')
     
-    plt.subplot(4,3,3)
-    plt.title('Orig')
-    plt.imshow(data[:, :, round(dims[2]/2), 0], vmin = data_vmin, vmax = data_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,3)
+    # plt.title('Orig')
+    # plt.imshow(data[:, :, round(dims[2]/2), 0], vmin = data_vmin, vmax = data_vmax)
+    # plt.axis('off')
 
-    plt.subplot(4,3,4)
-    plt.title('Sigma')
-    plt.imshow(sigma_array[round(dims[0]/2), :, :], vmin = sigma_vmin, vmax = sigma_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,4)
+    # plt.title('Sigma')
+    # plt.imshow(sigma_array[round(dims[0]/2), :, :], vmin = sigma_vmin, vmax = sigma_vmax)
+    # plt.axis('off')
 
-    plt.subplot(4,3,5)
-    plt.title('Sigma')
-    plt.imshow(sigma_array[:, round(dims[1]/2), :], vmin = sigma_vmin, vmax = sigma_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,5)
+    # plt.title('Sigma')
+    # plt.imshow(sigma_array[:, round(dims[1]/2), :], vmin = sigma_vmin, vmax = sigma_vmax)
+    # plt.axis('off')
     
-    plt.subplot(4,3,6)
-    plt.title('Sigma')
-    plt.imshow(sigma_array[:, :, round(dims[2]/2)], vmin = sigma_vmin, vmax = sigma_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,6)
+    # plt.title('Sigma')
+    # plt.imshow(sigma_array[:, :, round(dims[2]/2)], vmin = sigma_vmin, vmax = sigma_vmax)
+    # plt.axis('off')
 
-    plt.subplot(4,3,7)
-    plt.title('Corr')
-    plt.imshow(data_debias[round(dims[0]/2), :, :, 0], vmin = data_vmin, vmax = data_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,7)
+    # plt.title('Corr')
+    # plt.imshow(data_debias[round(dims[0]/2), :, :, 0], vmin = data_vmin, vmax = data_vmax)
+    # plt.axis('off')
 
-    plt.subplot(4,3,8)
-    plt.title('Corr')
-    plt.imshow(data_debias[:, round(dims[1]/2), :, 0], vmin = data_vmin, vmax = data_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,8)
+    # plt.title('Corr')
+    # plt.imshow(data_debias[:, round(dims[1]/2), :, 0], vmin = data_vmin, vmax = data_vmax)
+    # plt.axis('off')
     
-    plt.subplot(4,3,9)
-    plt.title('Corr')
-    plt.imshow(data_debias[:, :, round(dims[2]/2), 0], vmin = data_vmin, vmax = data_vmax)
-    plt.axis('off')
+    # plt.subplot(4,3,9)
+    # plt.title('Corr')
+    # plt.imshow(data_debias[:, :, round(dims[2]/2), 0], vmin = data_vmin, vmax = data_vmax)
+    # plt.axis('off')
 
-    plt.subplot(4,3,10)
-    plt.title('')
-    plt.imshow(np.log(np.abs(data - data_debias))[round(dims[0]/2), :, :, 0])
-    plt.axis('off')
+    # plt.subplot(4,3,10)
+    # plt.title('')
+    # plt.imshow(np.log(np.abs(data - data_debias))[round(dims[0]/2), :, :, 0])
+    # plt.axis('off')
 
-    plt.subplot(4,3,11)
-    plt.title('Log Residual')
-    plt.imshow(np.log(np.abs(data - data_debias))[:, round(dims[1]/2), :, 0])
-    plt.axis('off')
+    # plt.subplot(4,3,11)
+    # plt.title('Log Residual')
+    # plt.imshow(np.log(np.abs(data - data_debias))[:, round(dims[1]/2), :, 0])
+    # plt.axis('off')
     
-    plt.subplot(4,3,12)
-    plt.title('Log Residual')
-    plt.imshow(np.log(np.abs(data - data_debias))[:, :, round(dims[2]/2), 0])
-    plt.axis('off')
+    # plt.subplot(4,3,12)
+    # plt.title('Log Residual')
+    # plt.imshow(np.log(np.abs(data - data_debias))[:, :, round(dims[2]/2), 0])
+    # plt.axis('off')
 
-    plt.tight_layout()
+    # plt.tight_layout()
 
-    plt.show()
+    # plt.show()
 
 
     print("Saving Debiased Data")

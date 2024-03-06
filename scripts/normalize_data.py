@@ -111,7 +111,7 @@ def main():
 
 
     # compute stable sigma estimation and normalize
-    sigma_stable = sigmas*Ns / np.mean(Ns)
+    sigma_stable = sigmas*Ns / np.nanmean(Ns[mask])
     sigma_norm = sigma_stable / data_b0_mean
 
     # cleanup sigma

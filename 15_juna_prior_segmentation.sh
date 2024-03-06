@@ -30,8 +30,8 @@ CONTRAST_B0=${JUNA_DIR}/B0_N4_${N4_ITER}x.nii.gz
 CONTRAST_SM=${JUNA_DIR}/SM.nii.gz
 # Diffusion contrasts
 # CLipping negatives
-mrcalc ${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz 0 -max ${CONTRAST_B0}
-mrcalc ${TISSUE_SEGMENTATION_DIR}/data_norm_mean.nii.gz 0 -max ${CONTRAST_SM}
+mrcalc ${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz 0 -max ${CONTRAST_B0} -force
+mrcalc ${TISSUE_SEGMENTATION_DIR}/data_norm_mean.nii.gz 0 -max ${CONTRAST_SM} -force
 
 
 
@@ -83,7 +83,9 @@ echo "mrview -load ${CONTRAST_FLASH3} -interpolation 0 -mode 2 -overlay.load ${T
 
 
 
-
+JUNA_TO_JUNAROT_WARP=${JUNA_DIR}/Juna_to_JUNAROT_1Warp.nii.gz
+JUNAROT_TO_JUNA_WARP=${JUNA_DIR}/Juna_to_JUNAROT_1InverseWarp.nii.gz
+JUNA_TO_JUNAROT_AFF=${JUNA_DIR}/Juna_to_JUNAROT_0GenericAffine.mat
 
 
 
@@ -91,29 +93,44 @@ echo "mrview -load ${CONTRAST_FLASH3} -interpolation 0 -mode 2 -overlay.load ${T
 SUBCORTICAL=${TISSUE_SEGMENTATION_DIR}/subcortical/
 mkdir -p ${SUBCORTICAL}
 
-RAW_LABELS=/data/pt_02101_dMRI/external_data/Juna_Template/Juna.Chimp_05mm/negra_subcortical/labels_negra_ses1_junarot.nii.gz
+# RAW_LABELS_JUNAPAD=/data/pt_02101_dMRI/external_data/Juna_Template/Juna.Chimp_05mm/negra_subcortical/labels_juna_pad.nii.gz
+# RAW_LABELS_JUNAROT=${SUBCORTICAL}/labels_raw.nii.gz
 
+
+
+# antsApplyTransforms \
+#     --dimensionality 3 \
+#     --input ${RAW_LABELS_JUNAPAD} \
+#     --reference-image ${PRIOR_WM} \
+#     --transform ${JUNA_TO_JUNAROT_WARP} \
+#     --transform ${JUNA_TO_JUNAROT_AFF} \
+#     --interpolation NearestNeighbor \
+#     --output ${RAW_LABELS_JUNAROT}
+
+
+RAW_LABELS_JUNAROT=${JUNA_DIR}/subcortical_labels_raw.nii.gz
 
 # remove label 1, 4, 5
 LABELS=${SUBCORTICAL}/labels.nii.gz
-mrcalc ${RAW_LABELS} 0.5 -gt ${RAW_LABELS} 1.5 -lt -mult \
-       ${RAW_LABELS} 3.5 -gt ${RAW_LABELS} 4.5 -lt -mult \
-       ${RAW_LABELS} 4.5 -gt ${RAW_LABELS} 5.5 -lt -mult \
+mrcalc ${RAW_LABELS_JUNAROT} 0.5 -gt ${RAW_LABELS_JUNAROT} 1.5 -lt -mult \
+       ${RAW_LABELS_JUNAROT} 3.5 -gt ${RAW_LABELS_JUNAROT} 4.5 -lt -mult \
+       ${RAW_LABELS_JUNAROT} 4.5 -gt ${RAW_LABELS_JUNAROT} 5.5 -lt -mult \
        -add -add \
        1 -sub -1 -mult \
-       ${RAW_LABELS} -mult \
-       ${LABELS}
+       ${RAW_LABELS_JUNAROT} -mult \
+       ${LABELS} \
+       -force
 
 
 # make a subcortical mask
 LABELS_MASK=${SUBCORTICAL}/labels_mask.nii.gz
-mrcalc ${LABELS} 0.5 -gt ${LABELS_MASK}
+mrcalc ${LABELS} 0.5 -gt ${LABELS_MASK} -force
 
 
 
 # make data mask without subcortical
 MASK_NO_LABELS=${SUBCORTICAL}/mask_no_labels.nii.gz
-mrcalc 1 ${LABELS_MASK} -sub ${FIXEDMASK} -mult ${MASK_NO_LABELS}
+mrcalc 1 ${LABELS_MASK} -sub ${FIXEDMASK} -mult ${MASK_NO_LABELS} -force
 
 
 
@@ -159,8 +176,8 @@ fslroi ${SUBCORTICAL}/multimodal_seg_prob.nii.gz ${SUBCORTICAL}/multimodal_CSF.n
 #        -overlay.load ${LABELS_MASK} -overlay.opacity 0.4 -overlay.interpolation 0 -overlay.colour 1,1,0 -overlay.threshold_min 0.3
 
 
-
-
+echo -e "\necho \"Check Segmentation from Juna Prior with subcortical removed.\"" >> $THISLOG
+echo "mrview -load ${CONTRAST_FLASH3} -interpolation 0 -mode 2 -overlay.load ${SUBCORTICAL}/multimodal_GM.nii.gz  -overlay.opacity 0.4 -overlay.interpolation 0 -overlay.colour 1,0,0 -overlay.threshold_min 0.3 -overlay.load ${SUBCORTICAL}/multimodal_WM.nii.gz  -overlay.opacity 0.4 -overlay.interpolation 0 -overlay.colour 0,1,0 -overlay.threshold_min 0.3 -overlay.load ${SUBCORTICAL}/multimodal_CSF.nii.gz -overlay.opacity 0.4 -overlay.interpolation 0 -overlay.colour 0,0,1 -overlay.threshold_min 0.3 -overlay.load ${LABELS_MASK} -overlay.opacity 0.4 -overlay.interpolation 0 -overlay.colour 1,1,0 -overlay.threshold_min 0.3" >> $THISLOG
 
 
 
@@ -169,6 +186,6 @@ fslroi ${SUBCORTICAL}/multimodal_seg_prob.nii.gz ${SUBCORTICAL}/multimodal_CSF.n
 
 
 # # add END-OF-PROC print to logfile
-# echo -e "\n# END-OF-PROC" >> $THISLOG
+echo -e "\n# END-OF-PROC" >> $THISLOG
 
-# echo 'Done'
+echo 'Done'

@@ -199,7 +199,7 @@ antsApplyTransforms \
 
 echo -e "\necho \"Check FLASH FA05 N4 5x JUNAROT.\"" >> $THISLOG
 echo "mrview -load ${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA05}/data_degibbs_N4_${N4_ITER}x_junarot.nii.gz -interpolation 0 -mode 2" >> $THISLOG
-echo -e "echo \"Check FLASH FA12p5 N4 N4 5x JUNAROT.\"" >> $THISLOG
+echo -e "echo \"Check FLASH FA12p5 N4 5x JUNAROT.\"" >> $THISLOG
 echo "mrview -load ${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA12p5}/data_degibbs_N4_${N4_ITER}x_junarot.nii.gz -interpolation 0 -mode 2" >> $THISLOG
 echo -e "echo \"Check FLASH FA25 N4 5x JUNAROT.\"" >> $THISLOG
 echo "mrview -load ${FLASH_DIR_WARP}/data_epi_N4_${N4_ITER}x.nii.gz -interpolation 0 -mode 2 -load ${FLASH_DIR_FA25}/data_degibbs_N4_${N4_ITER}x_junarot.nii.gz -interpolation 0 -mode 2" >> $THISLOG

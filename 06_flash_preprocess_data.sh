@@ -141,11 +141,11 @@ ${MRDEGIBBS3D} -force \
 
 
 # clip zeros
-mrcalc ${FLASH_DIR_FA05}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA12p5}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA25}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA50}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz
-mrcalc ${FLASH_DIR_FA80}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz
+mrcalc ${FLASH_DIR_FA05}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA12p5}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA12p5}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA25}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA25}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA50}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA50}/data_degibbs_tmp.nii.gz -force
+mrcalc ${FLASH_DIR_FA80}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_FA80}/data_degibbs_tmp.nii.gz -force
 
 
 mv -f ${FLASH_DIR_FA05}/data_degibbs_tmp.nii.gz ${FLASH_DIR_FA05}/data_degibbs.nii.gz
@@ -194,7 +194,7 @@ if [ -n "$FLASH_HIGHRES" ]; then
         ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz \
         -nthreads ${N_CORES}
     #
-    mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz
+    mrcalc ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz -force
     mv -f ${FLASH_DIR_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_HIGHRES}/data_degibbs.nii.gz
 
     echo -e "echo \"HIGHRES.\"" >> $THISLOG
@@ -233,7 +233,7 @@ if [ -n "$FLASH_ULTRA_HIGHRES" ]; then
         ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz \
         -nthreads ${N_CORES}
     #
-    mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz
+    mrcalc ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz 0 -max ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz -force
     mv -f ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs_tmp.nii.gz ${FLASH_DIR_ULTRA_HIGHRES}/data_degibbs.nii.gz
 
     echo -e "echo \"ULTRAHIGHRES.\"" >> $THISLOG
@@ -452,7 +452,8 @@ N4BiasFieldCorrection -d 3 \
 
 mrgrid ${TEMPLATE} \
        pad -uniform ${PAD} \
-       ${TEMPLATE_PAD}
+       ${TEMPLATE_PAD} \
+       -force
 
 # create temporary template with the data's affine
 QFORM_PADDED_DATA=$(fslorient -getsform ${DATA})
@@ -544,7 +545,8 @@ echo "mrview -load ${DATA_WARPED} -interpolation 0 -mode 2 -overlay.load ${WORKD
 # Crop mask to obtain final JUNAROT space
 scil_crop_volume.py ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz \
                     ${WORKDIR}/JUNAROT_space_ref.nii.gz \
-                    --output_bbox ${WORKDIR}/junarot_final_crop.pkl
+                    --output_bbox ${WORKDIR}/junarot_final_crop.pkl \
+                    -f
 
 
 
@@ -557,7 +559,8 @@ scil_crop_volume.py ${WORKDIR}/mask_flash_dil_2mm_JUNAROT.nii.gz \
 #        crop -axis 0 62,64 \
 #             -axis 1 35,45 \
 #             -axis 2  2,29 \
-#        ${WORKDIR}/mask_flash_dil_2mm_JUNAROT_crop_test.nii.gz
+#        ${WORKDIR}/mask_flash_dil_2mm_JUNAROT_crop_test.nii.gz \
+#        -force
 
 python3 ${SCRIPTS}/offset_transform_with_bbox.py \
         --mat $FLIRT_MAT_ROT \

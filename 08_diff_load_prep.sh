@@ -412,7 +412,7 @@ rm -f ${DIFF_DATA_DIR}/mask_tmp.nii.gz ${DIFF_DATA_DIR}/mask_tmp_connect.nii.gz 
 
 
 # mv -f ${DIFF_DATA_DIR}/mask.nii.gz ${DIFF_DATA_DIR}/mask_auto.nii.gz
-# mrcalc ${DIFF_DATA_DIR}/mask_auto.nii.gz ${DIFF_DATA_DIR}/mask_manual_addition.nii.gz -max ${DIFF_DATA_DIR}/mask.nii.gz
+# mrcalc ${DIFF_DATA_DIR}/mask_auto.nii.gz ${DIFF_DATA_DIR}/mask_manual_addition.nii.gz -max ${DIFF_DATA_DIR}/mask.nii.gz  -force
 
 echo -e "\necho \"Check final EPI processing mask.\"" >> $THISLOG
 echo "mrview -load ${IM_IN} -interpolation 0 -mode 2 -overlay.load ${DIFF_DATA_DIR}/mask.nii.gz -overlay.opacity 0.5 -overlay.interpolation 0 -overlay.colourmap 3" >> $THISLOG
