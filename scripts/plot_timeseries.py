@@ -84,7 +84,7 @@ def main():
     axs[1].set_ylabel('Signal')
     
     pl.show(block=False)
-    pl.pause(600) # close after 5min if no interaction
+    pl.pause(30) # close after 30sec if no interaction
     pl.close()
 
     # Save output to specified folder

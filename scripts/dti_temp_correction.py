@@ -201,7 +201,7 @@ def main():
     pl.xlabel('volume ordering')
     pl.title('Signal multiplier (spatial)')
     pl.show(block=False)
-    pl.pause(600) # close after 5min if no interaction
+    pl.pause(30) # close after 30sec if no interaction
     pl.close()
 
 
