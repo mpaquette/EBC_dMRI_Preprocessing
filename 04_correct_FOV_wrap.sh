@@ -172,19 +172,19 @@ echo "mrview ${UNWRAP_PROC_DIR}/data_flash_mask_N4_${N4_ITER}x.nii.gz -interpola
 
 
 
-# add threshold mask and BET mask ofr final FLASH mask
+# add threshold mask and BET mask for final FLASH mask
 fslmaths      ${UNWRAP_PROC_DIR}/mask_th_flash.nii.gz \
          -add ${UNWRAP_PROC_DIR}/flash_bet_mask.nii.gz \
          -bin \
-              ${UNWRAP_PROC_DIR}/mask_flash.nii.gz
+              ${UNWRAP_PROC_DIR}/mask_flash_tmp.nii.gz
 
 
-maskfilter ${UNWRAP_PROC_DIR}/mask_flash.nii.gz \
+maskfilter ${UNWRAP_PROC_DIR}/mask_flash_tmp.nii.gz \
            connect \
            -largest -force \
            ${UNWRAP_PROC_DIR}/mask_flash_largest.nii.gz
 
-
+cp ${UNWRAP_PROC_DIR}/mask_flash_largest.nii.gz ${UNWRAP_PROC_DIR}/mask_flash.nii.gz
 
 echo -e "\necho \"Check final FLASH mask.\"" >> $THISLOG
 echo "mrview ${UNWRAP_PROC_DIR}/data_flash_mask_N4_${N4_ITER}x.nii.gz -interpolation 0 -overlay.load ${UNWRAP_PROC_DIR}/mask_flash.nii.gz -overlay.opacity 0.4 -overlay.colour 1,0,0 -overlay.interpolation 0 -overlay.threshold_min 0.1" >> $THISLOG
