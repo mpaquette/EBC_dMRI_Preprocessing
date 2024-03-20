@@ -165,7 +165,7 @@ MI_FRAC=0.25
 #                  --convergence [400x200x100x75x50,1e-6,10] \
 #                  --shrink-factors 16x8x4x2x1 \
 #                  --smoothing-sigmas 4x3x2x1x0vox \
-#                  --masks [$FIXEDMASKPAD] \
+#                  --masks [$FIXEDPADMASK] \
 #                  -v
 
 antsRegistration --dimensionality 3 --float 0 \
@@ -183,7 +183,7 @@ antsRegistration --dimensionality 3 --float 0 \
                  --convergence [400x200x100x75x50,1e-6,10] \
                  --shrink-factors 16x8x4x2x1 \
                  --smoothing-sigmas 4x3x2x1x0vox \
-                 --masks [$FIXEDMASKPAD] \
+                 --masks [$FIXEDPADMASK] \
                  -v
 
 echo -e "\necho \"Check Juna registration to JUNAROT space.\"" >> $THISLOG
